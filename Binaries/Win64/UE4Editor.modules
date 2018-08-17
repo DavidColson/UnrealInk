@@ -1,0 +1,8 @@
+{
+	"BuildId": "b3edfc65-706f-4cf1-86ae-05b34a85b6c3",
+	"Modules": 
+	{
+		"Ink": "UE4Editor-Ink.dll",
+		"InkEditor": "UE4Editor-InkEditor.dll"
+	}
+}
