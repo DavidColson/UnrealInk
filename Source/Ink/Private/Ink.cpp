@@ -29,7 +29,6 @@ static MonoAssembly* assembly_preload_hook(MonoAssemblyName *aname, char **assem
 	auto AsmName = FString(ANSI_TO_TCHAR(name));
 	auto AsmCulture = FString(ANSI_TO_TCHAR(culture));
 
-	//NOTE: we don't support .exe in UE extensions
 	if (!AsmName.EndsWith(TEXT(".dll"), ESearchCase::IgnoreCase))
 	{
 		AsmName = AsmName + TEXT(".dll");
@@ -71,7 +70,7 @@ void FInkModule::StartupModule()
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
 	// Get the base directory of this plugin
-	FString BaseDir = IPluginManager::Get().FindPlugin("Ink")->GetBaseDir();
+	FString BaseDir = IPluginManager::Get().FindPlugin("UnrealInk")->GetBaseDir();
 
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
@@ -90,10 +89,10 @@ void FInkModule::StartupModule()
 
 	// TODO: For packaged builds, this directory should be the engine binaries directory, and the binaries need to be copied in
 
-	FString MonoSearchPath = FPaths::EnginePluginsDir() + "/Ink/ThirdParty/Mono/Assemblies";
+	FString MonoSearchPath = FPaths::EnginePluginsDir() + "/UnrealInk/ThirdParty/Mono/Assemblies";
 	MonoPreloadSearchPaths.Add(MonoSearchPath);
 
-	FString InkSearchPath = FPaths::EnginePluginsDir() + "/Ink/ThirdParty/Ink/";
+	FString InkSearchPath = FPaths::EnginePluginsDir() + "/UnrealInk/ThirdParty/Ink/";
 	MonoPreloadSearchPaths.Add(InkSearchPath);
 
 	mono_install_assembly_preload_hook(assembly_preload_hook, NULL);
