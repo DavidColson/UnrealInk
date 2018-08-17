@@ -6,7 +6,7 @@ This is a plugin allowing you to use the excellent dynamic narrative scripting s
 
 # How to use 
 
-You can use the plugin either through C++ or more easily through blueprints. First though we need to go over importing Ink assets. 
+For the time being you need to compile the plugin yourself. I intend on making a packaged binary for distribution, but I haven't had time yet. Once you've compiled it and loaded it into your project, you can use the plugin either through C++ or more easily through blueprints. First though we need to go over importing Ink assets. 
 
 ## Importing Ink Assets
 
