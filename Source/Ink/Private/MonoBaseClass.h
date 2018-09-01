@@ -2,6 +2,7 @@
 
 #pragma once
 
+
 #include "UObject/Object.h"
 #include <mono/jit/jit.h>
 
@@ -93,6 +94,7 @@ protected:
 
 protected:
 	void FindMethods();
+	void ManualMethodBind(FString MethodName, int numParams);
 
 	TMap<FString, MonoMethod*> Methods;
 

@@ -5,3 +5,5 @@ Source/ThirdParty/InkGlue/InkGlue/obj/
 ExampleProject/Saved/
 ExampleProject/DerivedDataCache/
 *.pdb
+Binaries/
+Source/ThirdParty/InkGlue/.vs/

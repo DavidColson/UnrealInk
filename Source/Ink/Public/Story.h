@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Delegates/DelegateCombinations.h"
 #include "MonoBaseClass.h"
 
 #include "Story.generated.h"
@@ -45,6 +46,11 @@ struct FInkVar
 	FString stringVar;
 };
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FVariableObserver, FInkVar, newValue);
+
+extern "C" __declspec(dllexport) void ObserverCallbackInt(int instanceId, const char* variableName, int newValue);
+extern "C" __declspec(dllexport) void ObserverCallbackFloat(int instanceId, const char* variableName, float newValue);
+extern "C" __declspec(dllexport) void ObserverCallbackString(int instanceId, const char* variableName, const char* newValue);
 
 UCLASS(BlueprintType)
 class INK_API UStory : public UMonoBaseClass
@@ -53,6 +59,7 @@ class INK_API UStory : public UMonoBaseClass
 
 public:
 	UStory();
+	~UStory();
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	static UStory* NewStory(UStoryAsset* StoryAsset);
@@ -107,4 +114,17 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar> vars);
+
+	UFUNCTION(BlueprintCallable, Category = Ink)
+	void ObserveVariable(FString variableName, const FVariableObserver& observer);
+
+private:
+	typedef TPair<int, FString> FDelegateMapKey;
+	static TMap<FDelegateMapKey, FVariableObserver> delegateMap;
+	static int instanceCounter;
+	int instanceId{ -1 };
+
+	friend __declspec(dllexport) void ObserverCallbackInt(int instanceId, const char* variableName, int newValue);
+	friend __declspec(dllexport) void ObserverCallbackFloat(int instanceId, const char* variableName, float newValue);
+	friend __declspec(dllexport) void ObserverCallbackString(int instanceId, const char* variableName, const char* newValue);
 };

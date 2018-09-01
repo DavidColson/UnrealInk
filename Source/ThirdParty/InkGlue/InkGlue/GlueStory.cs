@@ -1,14 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Ink.Runtime;
 
 namespace InkGlue
 {
-    public class GlueStory
-    {
-		public GlueStory(string JsonString)
+	public class GlueStory
+	{
+		[DllImport("__Internal")]
+		public static extern void ObserverCallbackInt(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, int newValue);
+
+		[DllImport("__Internal")]
+		public static extern void ObserverCallbackFloat(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, float newValue);
+
+		[DllImport("__Internal")]
+		public static extern void ObserverCallbackString(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, string newValue);
+
+		public GlueStory(string JsonString, int instanceId)
 		{
 			_story = new Story(JsonString);
+			_instanceId = instanceId;
 		}
 
 		public bool CanContinue()
@@ -105,6 +116,23 @@ namespace InkGlue
 			_story.ChoosePathString(path, resetCallStack, arguments);
 		}
 
+		void InternalObserve(string variableName, object newValue)
+		{
+			if (newValue is int) {
+				ObserverCallbackInt(_instanceId, variableName, (int)newValue);
+			} else if (newValue is float){
+				ObserverCallbackFloat(_instanceId, variableName, (float)newValue);
+			} else if (newValue is string){
+				ObserverCallbackString(_instanceId, variableName, (string)newValue);
+			}
+		}
+
+		public void ObserveVariable(string variableName)
+		{
+			_story.ObserveVariable(variableName, InternalObserve);
+		}
+
 		Story _story;
-    }
+		int _instanceId = -1;
+	}
 }

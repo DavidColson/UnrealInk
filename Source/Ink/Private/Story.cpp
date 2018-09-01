@@ -12,10 +12,38 @@
 #include <mono/jit/jit.h>
 
 
+int UStory::instanceCounter = 0;
+TMap<TPair<int, FString>, FVariableObserver> UStory::delegateMap({});
+
 ////////////////////////////////////////////////////////
 UStory::UStory()
 {
 
+}
+
+extern "C" __declspec(dllexport) void ObserverCallbackInt(int instanceId, const char* variableName, int newValue)
+{
+	UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))].ExecuteIfBound(FInkVar(newValue));
+}
+extern "C" __declspec(dllexport) void ObserverCallbackFloat(int instanceId, const char* variableName, float newValue)
+{
+	UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))].ExecuteIfBound(FInkVar(newValue));
+}
+extern "C" __declspec(dllexport) void ObserverCallbackString(int instanceId, const char* variableName, const char* newValue)
+{
+	UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))].ExecuteIfBound(FInkVar(FString(newValue)));
+}
+
+UStory::~UStory()
+{
+	for (auto& element : delegateMap)
+	{
+		if (element.Key.Key == instanceId)
+		{
+			delegateMap.Remove(element.Key);
+			break;
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////
@@ -34,12 +62,18 @@ UStory* UStory::NewStory(UStoryAsset* StoryAsset)
 		UE_LOG(LogInk, Error, TEXT("Invalid Story Asset"));
 		return nullptr;
 	}
-	
-	MonoString* jsonString = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*(StoryAsset->CompiledStory)));
-	void* args[1];
-	args[0] = jsonString;
 
-	NewStory->MonoNew(args, 1);
+	NewStory->instanceId = instanceCounter++;
+
+	MonoString* jsonString = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*(StoryAsset->CompiledStory)));
+	void* args[2];
+	args[0] = jsonString;
+	args[1] = &(NewStory->instanceId);
+
+	NewStory->MonoNew(args, 2);
+
+	// Manually added methods (have unique parameters)
+	NewStory->ManualMethodBind("ObserveVariable", 1);
 
 	return NewStory;
 }
@@ -232,4 +266,14 @@ void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar>
 	Params[2] = &ResetCallstack;
 
 	MonoInvoke<void>("ChoosePathString", Params);
+}
+
+void UStory::ObserveVariable(FString variableName, const FVariableObserver & observer)
+{
+	FDelegateMapKey key = FDelegateMapKey(instanceId, variableName);
+	delegateMap.Add(key, observer);
+
+	void* Params[1];
+	Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
+	MonoInvoke<void>("ObserveVariable", Params);
 }
