@@ -120,7 +120,7 @@ public:
 
 private:
 	typedef TPair<int, FString> FDelegateMapKey;
-	static TMap<FDelegateMapKey, FVariableObserver> delegateMap;
+	static TMap<FDelegateMapKey, TArray<FVariableObserver>> delegateMap;
 	static int instanceCounter;
 	int instanceId{ -1 };
 

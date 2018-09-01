@@ -13,7 +13,7 @@
 
 
 int UStory::instanceCounter = 0;
-TMap<TPair<int, FString>, FVariableObserver> UStory::delegateMap({});
+TMap<TPair<int, FString>, TArray<FVariableObserver>> UStory::delegateMap({});
 
 ////////////////////////////////////////////////////////
 UStory::UStory()
@@ -23,15 +23,24 @@ UStory::UStory()
 
 extern "C" __declspec(dllexport) void ObserverCallbackInt(int instanceId, const char* variableName, int newValue)
 {
-	UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))].ExecuteIfBound(FInkVar(newValue));
+	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
+	{
+		_delegate.ExecuteIfBound(FInkVar(newValue));
+	}
 }
 extern "C" __declspec(dllexport) void ObserverCallbackFloat(int instanceId, const char* variableName, float newValue)
 {
-	UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))].ExecuteIfBound(FInkVar(newValue));
+	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
+	{
+		_delegate.ExecuteIfBound(FInkVar(newValue));
+	}
 }
 extern "C" __declspec(dllexport) void ObserverCallbackString(int instanceId, const char* variableName, const char* newValue)
 {
-	UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))].ExecuteIfBound(FInkVar(FString(newValue)));
+	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
+	{
+		_delegate.ExecuteIfBound(FInkVar(FString(newValue)));
+	}
 }
 
 UStory::~UStory()
@@ -271,9 +280,20 @@ void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar>
 void UStory::ObserveVariable(FString variableName, const FVariableObserver & observer)
 {
 	FDelegateMapKey key = FDelegateMapKey(instanceId, variableName);
-	delegateMap.Add(key, observer);
 
-	void* Params[1];
-	Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
-	MonoInvoke<void>("ObserveVariable", Params);
+	// If a delegate as already been bound to this variable, add it to the list of delegates for that key, and don't bother telling C# about it
+	if (delegateMap.Contains(key))
+	{
+		delegateMap[key].Add(observer);
+	}
+	else
+	{
+		TArray<FVariableObserver> observers;
+		observers.Add(observer);
+		delegateMap.Add(key, observers);
+
+		void* Params[1];
+		Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
+		MonoInvoke<void>("ObserveVariable", Params);
+	}
 }
