@@ -25,21 +25,21 @@ extern "C" __declspec(dllexport) void ObserverCallbackInt(int instanceId, const 
 {
 	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
 	{
-		_delegate.ExecuteIfBound(FInkVar(newValue));
+		_delegate.ExecuteIfBound(FString(variableName), FInkVar(newValue));
 	}
 }
 extern "C" __declspec(dllexport) void ObserverCallbackFloat(int instanceId, const char* variableName, float newValue)
 {
 	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
 	{
-		_delegate.ExecuteIfBound(FInkVar(newValue));
+		_delegate.ExecuteIfBound(FString(variableName), FInkVar(newValue));
 	}
 }
 extern "C" __declspec(dllexport) void ObserverCallbackString(int instanceId, const char* variableName, const char* newValue)
 {
 	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
 	{
-		_delegate.ExecuteIfBound(FInkVar(FString(newValue)));
+		_delegate.ExecuteIfBound(FString(variableName), FInkVar(FString(newValue)));
 	}
 }
 
@@ -295,5 +295,13 @@ void UStory::ObserveVariable(FString variableName, const FVariableObserver & obs
 		void* Params[1];
 		Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
 		MonoInvoke<void>("ObserveVariable", Params);
+	}
+}
+
+void UStory::ObserveVariables(TArray<FString> variableNames, const FVariableObserver & observer)
+{
+	for (auto& variableName : variableNames)
+	{
+		ObserveVariable(variableName, observer);
 	}
 }

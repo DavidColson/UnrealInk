@@ -46,7 +46,7 @@ struct FInkVar
 	FString stringVar;
 };
 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FVariableObserver, FInkVar, newValue);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FVariableObserver, FString, variableName, FInkVar, newValue);
 
 extern "C" __declspec(dllexport) void ObserverCallbackInt(int instanceId, const char* variableName, int newValue);
 extern "C" __declspec(dllexport) void ObserverCallbackFloat(int instanceId, const char* variableName, float newValue);
@@ -117,6 +117,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ObserveVariable(FString variableName, const FVariableObserver& observer);
+
+	UFUNCTION(BlueprintCallable, Category = Ink)
+	void ObserveVariables(TArray<FString> variableNames, const FVariableObserver& observer);
 
 private:
 	typedef TPair<int, FString> FDelegateMapKey;
