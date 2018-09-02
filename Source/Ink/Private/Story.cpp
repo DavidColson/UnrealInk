@@ -83,6 +83,7 @@ UStory* UStory::NewStory(UStoryAsset* StoryAsset)
 
 	// Manually added methods (have unique parameters)
 	NewStory->ManualMethodBind("ObserveVariable", 1);
+	NewStory->ManualMethodBind("RemoveVariableObserver", 1);
 
 	return NewStory;
 }
@@ -240,7 +241,6 @@ TArray<FString> UStory::TagsForContentAtPath(FString Path)
 //
 
 //////////////////////////////////////////////////////////
-
 void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar> vars)
 {
 	MonoArray* argsArray;
@@ -277,6 +277,7 @@ void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar>
 	MonoInvoke<void>("ChoosePathString", Params);
 }
 
+////////////////////////////////////////////////////////
 void UStory::ObserveVariable(FString variableName, const FVariableObserver & observer)
 {
 	FDelegateMapKey key = FDelegateMapKey(instanceId, variableName);
@@ -298,10 +299,50 @@ void UStory::ObserveVariable(FString variableName, const FVariableObserver & obs
 	}
 }
 
+////////////////////////////////////////////////////////
 void UStory::ObserveVariables(TArray<FString> variableNames, const FVariableObserver & observer)
 {
 	for (auto& variableName : variableNames)
 	{
 		ObserveVariable(variableName, observer);
+	}
+}
+
+////////////////////////////////////////////////////////
+void UStory::RemoveVariableObserver(const FVariableObserver& observer, FString specificVariableName /*= ""*/)
+{
+	// Case 1, variable specified, delegate specified, Ubind this variable from this delegate
+	if (specificVariableName != "")
+	{
+		FDelegateMapKey key = FDelegateMapKey(instanceId, specificVariableName);
+		TArray<FVariableObserver>& delegates = delegateMap[key];
+		delegates.Remove(observer);
+
+		// if there are no more delegates bound to this specific variable you're free to unbind InternalObserve
+		if (delegates.Num() == 0)
+		{
+			void* Params[1];
+			Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*specificVariableName));
+			MonoInvoke<void>("RemoveVariableObserver", Params);
+		}
+	}
+	// Case 2, variable not specified, delegate specified Unbind all variables bound to this delegate
+	else
+	{
+		for (auto& element : delegateMap)
+		{
+			TArray<FVariableObserver>& delegates = element.Value;
+			delegates.Remove(observer);
+
+			// Likewise, if there are 0 delegates left bound to this variable, unbind InternalObserve
+			if (delegates.Num() == 0)
+			{
+				FString varName = element.Key.Value;
+
+				void* Params[1];
+				Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*element.Key.Value));
+				MonoInvoke<void>("RemoveVariableObserver", Params);
+			}
+		}
 	}
 }

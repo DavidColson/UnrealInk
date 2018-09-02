@@ -132,6 +132,11 @@ namespace InkGlue
 			_story.ObserveVariable(variableName, InternalObserve);
 		}
 
+		public void RemoveVariableObserver(string variableName)
+		{
+			_story.RemoveVariableObserver(InternalObserve, variableName);
+		}
+
 		Story _story;
 		int _instanceId = -1;
 	}
