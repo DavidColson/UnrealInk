@@ -30,7 +30,7 @@ It's very similar to the blueprints here as well. Load a story asset file, call 
 
 This plugin isn't complete and there are some lacking features and/or problems, so be aware of them
 
-- Variable Observers are not implemented yet
+- ~Variable Observers are not implemented yet~ These are now implemented
 - Execute Function and Bind Function calls are not implemented yet
 - The Profiler and profile node stuff isn't implemented yet
 - The plugin does not automatically package the mono and ink assemblies when you package your game, you have to do this by youself
