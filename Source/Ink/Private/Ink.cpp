@@ -4,6 +4,9 @@
 #include "Modules/ModuleInterface.h"
 #include "Interfaces/IPluginManager.h"
 #include "HAL/PlatformFilemanager.h"
+#include "HAL/FileManager.h"
+#include "Misc/Paths.h"
+#include "Misc/App.h"
 
 #include "Story.h"
 #include "StoryState.h"

@@ -45,13 +45,17 @@ extern "C" __declspec(dllexport) void ObserverCallbackString(int instanceId, con
 
 UStory::~UStory()
 {
+	TArray<FDelegateMapKey> keysToRemove;
 	for (auto& element : delegateMap)
 	{
 		if (element.Key.Key == instanceId)
 		{
-			delegateMap.Remove(element.Key);
-			break;
+			keysToRemove.Add(element.Key);
 		}
+	}
+	for (auto& key : keysToRemove)
+	{
+		delegateMap.Remove(key);
 	}
 }
 
@@ -107,7 +111,7 @@ TArray<UChoice*> UStory::CurrentChoices()
 	TArray<UChoice*> returnChoices;
 
 	MonoArray* Result = MonoInvoke<MonoArray*>("CurrentChoices", NULL);
-	for (int i = 0; i < mono_array_length(Result); i++)
+	for (size_t i = 0; i < mono_array_length(Result); i++)
 	{
 		MonoObject* MonoChoiceInstance = mono_array_get(Result, MonoObject*, i);
 		returnChoices.Add(UChoice::NewChoice(MonoChoiceInstance));
@@ -148,7 +152,7 @@ TArray<FString> UStory::CurrentTags()
 {
 	TArray<FString>  returnTags;
 	MonoArray* MonoTags = MonoInvoke<MonoArray*>("CurrentTags", NULL);
-	for (int i = 0; i < mono_array_length(MonoTags); i++)
+	for (size_t i = 0; i < mono_array_length(MonoTags); i++)
 	{
 		MonoString* String = mono_array_get(MonoTags, MonoString*, i);
 		returnTags.Add(FString(mono_string_to_utf8(String)));
@@ -161,7 +165,7 @@ TArray<FString> UStory::CurrentErrors()
 {
 	TArray<FString>  returnErrors;
 	MonoArray* MonoErrors = MonoInvoke<MonoArray*>("CurrentErrors", NULL);
-	for (int i = 0; i < mono_array_length(MonoErrors); i++)
+	for (size_t i = 0; i < mono_array_length(MonoErrors); i++)
 	{
 		MonoString* String = mono_array_get(MonoErrors, MonoString*, i);
 		returnErrors.Add(FString(mono_string_to_utf8(String)));
@@ -216,7 +220,7 @@ TArray<FString> UStory::TagsForContentAtPath(FString Path)
 	void* args[1];
 	args[0] = MonoPath;
 	MonoArray* MonoTags = MonoInvoke<MonoArray*>("TagsForContentAtPath", args);
-	for (int i = 0; i < mono_array_length(MonoTags); i++)
+	for (size_t i = 0; i < mono_array_length(MonoTags); i++)
 	{
 		MonoString* String = mono_array_get(MonoTags, MonoString*, i);
 		returnTags.Add(FString(mono_string_to_utf8(String)));

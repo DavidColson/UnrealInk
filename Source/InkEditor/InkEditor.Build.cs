@@ -23,7 +23,7 @@ public class InkEditor : ModuleRules
 
         PublicIncludePaths.AddRange(
 			new string[] {
-				"InkEditor/Public"
+                Path.Combine(ModulePath, "Public")
 				// ... add public include paths required here ...
 			}
 			);
@@ -31,8 +31,8 @@ public class InkEditor : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"InkEditor/Private",
-                "Ink/Private",
+                Path.Combine(ModulePath, "Private"),
+                Path.Combine(ModulePath, "../Ink/Private"),
                 Path.Combine(ThirdPartyPath, "Mono", "include")
             }
 			);

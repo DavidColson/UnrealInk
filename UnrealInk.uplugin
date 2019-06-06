@@ -12,17 +12,27 @@
 	"SupportURL": "",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
-	"Installed": false,
+	"Installed": true,
   "Modules": [
     {
       "Name": "Ink",
       "Type": "Runtime",
-      "LoadingPhase": "Default"
+      "LoadingPhase": "Default",
+      "WhitelistPlatforms" :
+      [
+        "Win64",
+        "Win32"
+      ]
     },
     {
       "Name": "InkEditor",
       "Type": "Editor",
-      "LoadingPhase": "Default"
+      "LoadingPhase": "Default",
+      "WhitelistPlatforms" :
+      [
+        "Win64",
+        "Win32"
+      ]
     }
   ]
 }

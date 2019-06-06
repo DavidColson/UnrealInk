@@ -2,7 +2,7 @@
 
 #pragma once
 
-
+#include "Modules/ModuleManager.h"
 #include "UObject/Object.h"
 #include <mono/jit/jit.h>
 

@@ -2,9 +2,11 @@
 
 using UnrealBuildTool;
 using System.IO;
+using System;
 
 public class Ink : ModuleRules
 {
+	// Module path is into the Ink source module, that is UnrealInk/Source/Ink
     private string ModulePath
     {
         get { return ModuleDirectory; }
@@ -33,19 +35,18 @@ public class Ink : ModuleRules
 
         PublicIncludePaths.AddRange(
 			new string[] {
-				"Ink/Public"
+				Path.Combine(ModulePath, "Public")
 				// ... add public include paths required here ...
 			}
 			);
-				
-		
-		PrivateIncludePaths.AddRange(
+
+        PrivateIncludePaths.AddRange(
 			new string[] {
-				"Ink/Private",
-                 Path.Combine(ThirdPartyPath, "Mono", "include")
+                Path.Combine(ModulePath, "Private"),
+                Path.Combine(ThirdPartyPath, "Mono", "include")
             }
 			);
-			
+
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
