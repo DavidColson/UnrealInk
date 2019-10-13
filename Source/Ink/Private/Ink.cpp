@@ -46,6 +46,8 @@ static MonoAssembly* assembly_preload_hook(MonoAssemblyName *aname, char **assem
 			AsmPath = FPaths::Combine(*searchPath, *AsmCulture, *AsmName);
 			if (!FPaths::FileExists(AsmPath))
 			{
+				FString AbsoluteAssemblyPath = FileManager.ConvertToAbsolutePathForExternalAppForRead(*AsmPath);
+				UE_LOG(LogInk, Log, TEXT("Failed to find assembly %s in path %s"), *AsmName, *AbsoluteAssemblyPath);
 				continue;
 			}
 		}
@@ -63,7 +65,7 @@ static MonoAssembly* assembly_preload_hook(MonoAssemblyName *aname, char **assem
 			return loaded_asm;
 		}
 	}
-	UE_LOG(LogInk, Fatal, TEXT("Failed to load assembly: '%s'."), *AsmName);
+	UE_LOG(LogInk, Fatal, TEXT("Failed to load assembly '%s'"), *AsmName);
 	return nullptr;
 }
 
