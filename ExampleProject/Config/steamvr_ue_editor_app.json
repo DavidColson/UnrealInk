@@ -1,0 +1,18 @@
+{
+	"source": "UE",
+	"applications": [
+		{
+			"app_key": "application.generated.ue.unreal-ink-plugin-example-11590370.ue4editor.exe",
+			"launch_type": "url",
+			"url": "steam://launch/",
+			"action_manifest_path": "D:/Dev/UnrealInkStaging/ExampleProject/Config/SteamVRBindings/steamvr_manifest.json",
+			"strings":
+			{
+				"en_us":
+				{
+					"name": "Unreal Ink Plugin Example-11590370 [UE Editor]"
+				}
+			}
+		}
+	]
+}
