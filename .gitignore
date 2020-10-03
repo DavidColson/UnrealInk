@@ -7,3 +7,5 @@ ExampleProject/DerivedDataCache/
 *.pdb
 Binaries/
 Source/ThirdParty/InkGlue/.vs/
+.vs/
+Saved/
