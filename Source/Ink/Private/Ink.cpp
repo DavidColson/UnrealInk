@@ -94,10 +94,18 @@ void FInkModule::StartupModule()
 
 	// TODO: For packaged builds, this directory should be the engine binaries directory, and the binaries need to be copied in
 
-	FString MonoSearchPath = FPaths::EnginePluginsDir() + "UnrealInk/ThirdParty/Mono/Assemblies";
+	FString MonoSearchPath = FPaths::EnginePluginsDir() + "UnrealInk/ThirdParty/Mono/Assemblies/";
+	MonoPreloadSearchPaths.Add(MonoSearchPath);
+	MonoSearchPath = FPaths::ProjectPluginsDir() + "UnrealInk/ThirdParty/Mono/Assemblies/";
+	MonoPreloadSearchPaths.Add(MonoSearchPath);
+	MonoSearchPath = FString(FPlatformProcess::BaseDir()) + "/Mono/Assemblies/";
 	MonoPreloadSearchPaths.Add(MonoSearchPath);
 
 	FString InkSearchPath = FPaths::EnginePluginsDir() + "UnrealInk/ThirdParty/Ink/";
+	MonoPreloadSearchPaths.Add(InkSearchPath);
+	InkSearchPath = FPaths::ProjectPluginsDir() + "UnrealInk/ThirdParty/Ink/";
+	MonoPreloadSearchPaths.Add(InkSearchPath);
+	InkSearchPath = FString(FPlatformProcess::BaseDir()) + "Ink/";
 	MonoPreloadSearchPaths.Add(InkSearchPath);
 
 	mono_install_assembly_preload_hook(assembly_preload_hook, NULL);
@@ -112,6 +120,12 @@ void FInkModule::StartupModule()
 	// Load Ink Runtime assembly
 	MonoAssembly *assembly;
 	const char* assemblyPath = TCHAR_TO_ANSI(*FString(BaseDir + "/ThirdParty/Ink/InkGlue.dll"));
+
+	if(!FPaths::FileExists(FString(assemblyPath))) 
+	{
+	  assemblyPath = TCHAR_TO_ANSI(*FString(FString(FPlatformProcess::BaseDir()) + "/Ink/InkGlue.dll"));
+	}
+
 	assembly = mono_domain_assembly_open(MainDomain, assemblyPath);
 	if (!assembly)
 	{

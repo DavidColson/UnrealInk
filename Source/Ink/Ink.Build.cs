@@ -63,12 +63,15 @@ public class Ink : ModuleRules
 
         string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "Win64" : "Win32";
 
-        PublicLibraryPaths.Add(pluginDirectory +  "/ThirdParty/Mono/lib/" + PlatformString);
+        //PublicLibraryPaths.Add(pluginDirectory +  "/ThirdParty/Mono/lib/" + PlatformString);
 
         // Add the import library
-        PublicAdditionalLibraries.Add("mono-2.0-sgen.lib");
+        PublicAdditionalLibraries.Add(pluginDirectory + "/ThirdParty/Mono/lib/" + PlatformString + "/mono-2.0-sgen.lib");
         // Delay-load the DLL, so we can load it from the right place first
         PublicDelayLoadDLLs.Add("mono-2.0-sgen.dll");
 
-	}
+        RuntimeDependencies.Add("$(TargetOutputDir)/mono-2.0-sgen.dll", Path.Combine(pluginDirectory, "ThirdParty/Mono/lib", PlatformString, "mono-2.0-sgen.dll"));
+
+        PrecompileForTargets = PrecompileTargetsType.Any;
+    }
 }
