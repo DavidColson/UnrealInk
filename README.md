@@ -6,7 +6,7 @@ This is a plugin allowing you to use the excellent dynamic narrative scripting s
 
 # How to use 
 
-I have provided packaged versions of the plugin, complete with the example project. I try keep it updated for the most recent versions of Unreal, if it's not updated poke me and I can do it for you. Simply drop the packaged plugin into the plugins folder of your engine. *Please note that it only works when in the Engine's plugin folder, and not your project's*. Once loaded it into your project, you can use the plugin either through C++ or more easily through blueprints. First though we need to go over importing Ink assets. 
+I have provided packaged versions of the plugin, complete with the example project. I try keep it updated for the most recent versions of Unreal, if it's not updated poke me and I can do it for you. Simply drop the packaged plugin into the plugins folder of your engine or game. Once loaded it into your project, you can use the plugin either through C++ or more easily through blueprints. First though we need to go over importing Ink assets. 
 
 ## Importing Ink Assets
 
