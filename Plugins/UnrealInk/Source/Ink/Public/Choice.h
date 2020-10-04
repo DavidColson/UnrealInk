@@ -13,16 +13,16 @@ class INK_API UChoice : public UMonoBaseClass
 public:
 	UChoice();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
 	FString Text();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
 	FString PathStringOnChoice();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
 	FString SourcePath();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
 	int Index();
 
 private:
