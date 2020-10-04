@@ -2,6 +2,10 @@
 
 #include "InkEditor.h"
 
+#include "AssetToolsModule.h"
+
+#include "StoryAssetFactory.h"
+
 #define LOCTEXT_NAMESPACE "FInkEditorModule"
 
 DEFINE_LOG_CATEGORY(LogInkEditor)
@@ -13,6 +17,12 @@ void FInkEditorModule::StartupModule()
 
 	UE_LOG(LogInkEditor, Log, TEXT("Ink Editor Code Loaded"));
 
+	// Register asset types
+	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	{
+		TSharedRef<IAssetTypeActions> Action = MakeShareable(new FAssetTypeActions_StoryAsset);
+		AssetTools.RegisterAssetTypeActions(Action);
+	}
 }
 
 ////////////////////////////////////////////////////////
