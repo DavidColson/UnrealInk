@@ -37,6 +37,11 @@ namespace InkGlue
 			_storyState.ForceEnd();
 		}
 
+		public string CurrentPathString()
+        {
+			return _storyState.currentPathString;
+        }
+
 		StoryState _storyState;
     }
 }

@@ -157,7 +157,17 @@ namespace InkGlue
 			return _story.BuildStringOfHierarchy();
         }
 
-		Story _story;
+        public GlueStoryState CopyStateForBackgroundThreadSave()
+        {
+            return new GlueStoryState(_story.CopyStateForBackgroundThreadSave());
+        }
+
+        public void BackgroundSaveComplete()
+        {
+            _story.BackgroundSaveComplete();
+        }
+
+        Story _story;
 		int _instanceId = -1;
 	}
 }

@@ -54,6 +54,12 @@ int UStoryState::VisitCountAtPathString(FString PathString)
 }
 
 ////////////////////////////////////////////////////////
+FString UStoryState::CurrentPathString()
+{
+	return MonoInvoke<FString>("CurrentPathString", NULL);
+}
+
+////////////////////////////////////////////////////////
 void UStoryState::ForceEnd()
 {
 	MonoInvoke<void>("ForceEnd", NULL);

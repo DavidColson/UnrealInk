@@ -388,3 +388,16 @@ FString UStory::BuildStringOfHeirarchy()
 {
 	return MonoInvoke<FString>("BuildStringOfHeirarchy", NULL);
 }
+
+////////////////////////////////////////////////////////
+UStoryState* UStory::CopyStateForBackgroundThreadSave()
+{
+	MonoObject* MonoStateInstance = MonoInvoke<MonoObject*>("CopyStateForBackgroundThreadSave", NULL);
+	return UStoryState::NewStoryState(MonoStateInstance);
+}
+
+////////////////////////////////////////////////////////
+void UStory::BackgroundSaveComplete()
+{
+	MonoInvoke<void>("BackgroundSaveComplete", NULL);
+}

@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	int VisitCountAtPathString(FString PathString);
 
+	UFUNCTION(BlueprintPure, Category = Ink)
+	FString CurrentPathString();
+
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ForceEnd();
 

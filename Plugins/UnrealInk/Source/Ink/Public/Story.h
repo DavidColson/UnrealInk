@@ -82,7 +82,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = Ink)
 	FString CurrentText();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
 	UStoryState* State();
 
 	UFUNCTION(BlueprintPure, Category = Ink)
@@ -138,6 +138,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	FString BuildStringOfHeirarchy();
+
+	UFUNCTION(BlueprintCallable, Category = Ink)
+	UStoryState* CopyStateForBackgroundThreadSave();
+
+	UFUNCTION(BlueprintCallable, Category = Ink)
+	void BackgroundSaveComplete();
 
 private:
 	typedef TPair<int, FString> FDelegateMapKey;
