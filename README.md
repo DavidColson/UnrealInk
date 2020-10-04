@@ -1,6 +1,8 @@
 # Unreal Ink
 
-This is a plugin allowing you to use the excellent dynamic narrative scripting system, Ink, in Unreal Engine. [Visit the Ink repository for more information on it.](https://github.com/inkle/ink) The plugin still isn't quite done and is lacking a lot of polish and a few features from the original Ink system, but otherwise it's quite usable as is. Please don't hesistate to contact me for any problems or help you need. I live at @dave_colson on twitter and you can email me at david@peripherallabs.com.
+This is a plugin allowing you to use the excellent dynamic narrative scripting system, Ink, in Unreal Engine. [Visit the Ink repository for more information on it.](https://github.com/inkle/ink) The plugin still isn't quite done and is a couple features from the original Ink system, but otherwise it's quite usable as is. Please don't hesistate to contact me for any problems or help you need. I live at @dave_colson on twitter and you can email me at david@peripherallabs.com.
+
+As of current master branch, compatible with Ink 0.9.0.
 
 ![Example Project](Documentation/Example.png)
 
@@ -30,12 +32,10 @@ It's very similar to the blueprints here as well. Load a story asset file, call 
 
 This plugin isn't complete and there are some lacking features and/or problems, so be aware of them
 
-- ~Variable Observers are not implemented yet~ These are now implemented
 - Execute Function and Bind Function calls are not implemented yet
 - The Profiler and profile node stuff isn't implemented yet
 - The plugin does not automatically package the mono and ink assemblies when you package your game, you have to do this by youself
-- There's probably bugs I haven't yet found
-- I haven't tested on other platforms yet, but I would like to ensure it works
+- Hasn't been tested on Mac, but with a OSX copy of mono sgen it should theoretically work
 
 # How does it work?
 
