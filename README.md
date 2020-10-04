@@ -1,6 +1,6 @@
 # Unreal Ink
 
-This is a plugin allowing you to use the excellent dynamic narrative scripting system, Ink, in Unreal Engine. [Visit the Ink repository for more information on it.](https://github.com/inkle/ink) The plugin still isn't quite done and is a couple features from the original Ink system, but otherwise it's quite usable as is. Please don't hesistate to contact me for any problems or help you need. I live at @dave_colson on twitter and you can email me at david@peripherallabs.com.
+This is a plugin allowing you to use the excellent dynamic narrative scripting system, Ink, in Unreal Engine. [Visit the Ink repository for more information on it.](https://github.com/inkle/ink) The plugin still isn't quite done and there are a couple of advanced features from the C# API missing, but the runtime itself is up to date and fully featured. Please don't hesistate to contact me for any problems or help you need. I live at @dave_colson on twitter and you can email me at david@peripherallabs.com.
 
 As of current master branch, compatible with Ink 0.9.0.
 
