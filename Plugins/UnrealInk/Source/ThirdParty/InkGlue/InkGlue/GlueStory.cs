@@ -62,17 +62,32 @@ namespace InkGlue
 			return _story.hasError;
 		}
 
-		public string[] CurrentTags()
+        public bool HasWarning()
+        {
+            return _story.hasWarning;
+        }
+
+        public string[] CurrentTags()
 		{
 			return _story.currentTags.ToArray();
 		}
 
-		public string[] CurrentErrors()
+        public string[] GlobalTags()
+        {
+            return _story.globalTags.ToArray();
+        }
+
+        public string[] CurrentErrors()
 		{
 			return _story.currentErrors.ToArray();
 		}
 
-		public void ResetState()
+        public string[] CurrentWarnings()
+        {
+            return _story.currentWarnings.ToArray();
+        }
+
+        public void ResetState()
 		{
 			_story.ResetState();
 		}

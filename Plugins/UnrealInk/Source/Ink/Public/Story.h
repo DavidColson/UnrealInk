@@ -70,7 +70,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	FString Continue();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
 	bool CanContinue();
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
@@ -79,20 +79,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ChooseChoiceIndex(int index);
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
 	FString CurrentText();
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	UStoryState* State();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
 	bool HasError();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
+	bool HasWarning();
+
+	UFUNCTION(BlueprintPure, Category = Ink)
 	TArray<FString> CurrentTags();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
+	UFUNCTION(BlueprintPure, Category = Ink)
+	TArray<FString> GlobalTags();
+
+	UFUNCTION(BlueprintPure, Category = Ink)
 	TArray<FString> CurrentErrors();
+
+	UFUNCTION(BlueprintPure, Category = Ink)
+	TArray<FString> CurrentWarnings();
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ResetState();

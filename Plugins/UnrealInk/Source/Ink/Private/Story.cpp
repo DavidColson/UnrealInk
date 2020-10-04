@@ -148,10 +148,29 @@ bool UStory::HasError()
 }
 
 ////////////////////////////////////////////////////////
+bool UStory::HasWarning()
+{
+	return MonoInvoke<bool>("HasWarning", NULL);
+}
+
+////////////////////////////////////////////////////////
 TArray<FString> UStory::CurrentTags()
 {
 	TArray<FString>  returnTags;
 	MonoArray* MonoTags = MonoInvoke<MonoArray*>("CurrentTags", NULL);
+	for (size_t i = 0; i < mono_array_length(MonoTags); i++)
+	{
+		MonoString* String = mono_array_get(MonoTags, MonoString*, i);
+		returnTags.Add(FString(mono_string_to_utf8(String)));
+	}
+	return returnTags;
+}
+
+////////////////////////////////////////////////////////
+TArray<FString> UStory::GlobalTags()
+{
+	TArray<FString>  returnTags;
+	MonoArray* MonoTags = MonoInvoke<MonoArray*>("GlobalTags", NULL);
 	for (size_t i = 0; i < mono_array_length(MonoTags); i++)
 	{
 		MonoString* String = mono_array_get(MonoTags, MonoString*, i);
@@ -171,6 +190,19 @@ TArray<FString> UStory::CurrentErrors()
 		returnErrors.Add(FString(mono_string_to_utf8(String)));
 	}
 	return returnErrors;
+}
+
+////////////////////////////////////////////////////////
+TArray<FString> UStory::CurrentWarnings()
+{
+	TArray<FString>  returnWarnings;
+	MonoArray* MonoWarnings = MonoInvoke<MonoArray*>("CurrentWarnings", NULL);
+	for (size_t i = 0; i < mono_array_length(MonoWarnings); i++)
+	{
+		MonoString* String = mono_array_get(MonoWarnings, MonoString*, i);
+		returnWarnings.Add(FString(mono_string_to_utf8(String)));
+	}
+	return returnWarnings;
 }
 
 ////////////////////////////////////////////////////////
