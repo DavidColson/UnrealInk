@@ -32,6 +32,7 @@ It's very similar to the blueprints here as well. Load a story asset file, call 
 
 This plugin isn't complete and there are some lacking features and/or problems, so be aware of them
 
+- variableState access is not yet implemented
 - Execute Function and Bind Function calls are not implemented yet
 - The Profiler and profile node stuff isn't implemented yet
 - Hasn't been tested on Mac, but with a OSX copy of mono sgen it should theoretically work
