@@ -32,10 +32,11 @@ It's very similar to the blueprints here as well. Load a story asset file, call 
 
 This plugin isn't complete and there are some lacking features and/or problems, so be aware of them
 
+- variableState access is not yet implemented
 - Execute Function and Bind Function calls are not implemented yet
 - The Profiler and profile node stuff isn't implemented yet
 - Hasn't been tested on Mac, but with a OSX copy of mono sgen it should theoretically work
 
 # How does it work?
 
-It works by embedding the Mono runtime directly into the plugin in Unreal, and then has a special C# assembly called InkGlue, which marshalls data and function calls between C# and C++ to lessen the amount of complicated binding code present in C++. This does however come with some complications for your projects. The Binaries found in the ThirdParty folder need to be packaged alongside your game otherwise it will not run. They mostly consist of mono assemblies, which should be fine on most platforms. Though it does contain the windows Mono library. I've included the windows mono binaries, since I work on Windows, but you will need to source those libraries yourself if you want it to work on Mac or Linux. Hopefully I can get around to doing that properly. 
+It works by embedding the Mono runtime directly into the plugin in Unreal, and then has a special C# assembly called InkGlue, which marshalls data and function calls between C# and C++ to lessen the amount of complicated binding code present in C++. It requires linking with mono, and since I've only got a windows PC currently I've provided the windows mono library. Theoretically it'll work fine on Mac, you just need to link the mono-sgen dynlib.
