@@ -108,6 +108,9 @@ void FInkModule::StartupModule()
 	InkSearchPath = FString(FPlatformProcess::BaseDir()) + "Ink/";
 	MonoPreloadSearchPaths.Add(InkSearchPath);
 
+	MonoSearchPath = FString(FPlatformProcess::BaseDir()) + "/";
+	MonoPreloadSearchPaths.Add(MonoSearchPath);
+	
 	mono_install_assembly_preload_hook(assembly_preload_hook, NULL);
 
 	//Init mono into the main domain
@@ -122,9 +125,10 @@ void FInkModule::StartupModule()
 	const char* assemblyPath = TCHAR_TO_ANSI(*FString(BaseDir + "/ThirdParty/Ink/InkGlue.dll"));
 
 	if(!FPaths::FileExists(FString(assemblyPath))) 
-	{
-	  assemblyPath = TCHAR_TO_ANSI(*FString(FString(FPlatformProcess::BaseDir()) + "/Ink/InkGlue.dll"));
-	}
+		assemblyPath = TCHAR_TO_ANSI(*FString(FString(FPlatformProcess::BaseDir()) + "/Ink/InkGlue.dll"));
+
+	if (!FPaths::FileExists(FString(assemblyPath)))
+		assemblyPath = TCHAR_TO_ANSI(*FString(FString(FPlatformProcess::BaseDir()) + "/InkGlue.dll"));
 
 	assembly = mono_domain_assembly_open(MainDomain, assemblyPath);
 	if (!assembly)

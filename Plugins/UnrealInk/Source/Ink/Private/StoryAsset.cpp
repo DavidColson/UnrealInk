@@ -9,18 +9,16 @@ UStoryAsset::UStoryAsset()
 
 }
 
+#if WITH_EDITORONLY_DATA
 void UStoryAsset::PostInitProperties()
 {
-#if WITH_EDITORONLY_DATA
 	if (!HasAnyFlags(RF_ClassDefaultObject))
 	{
 		AssetImportData = NewObject<UAssetImportData>(this, TEXT("AssetImportData"));
 	}
-#endif
 	Super::PostInitProperties();
 }
 
-#if WITH_EDITORONLY_DATA
 void UStoryAsset::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const
 {
 	if (AssetImportData)

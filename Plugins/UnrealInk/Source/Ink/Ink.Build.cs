@@ -72,6 +72,14 @@ public class Ink : ModuleRules
 
         RuntimeDependencies.Add("$(TargetOutputDir)/mono-2.0-sgen.dll", Path.Combine(pluginDirectory, "ThirdParty/Mono/lib", PlatformString, "mono-2.0-sgen.dll"));
 
+        // Mono Assemblies
+        RuntimeDependencies.Add("$(TargetOutputDir)/...", Path.Combine(pluginDirectory, "ThirdParty/Mono/Assemblies/..."));
+
+        // Ink Assemblies
+        RuntimeDependencies.Add("$(TargetOutputDir)/ink_compiler.dll", Path.Combine(pluginDirectory, "ThirdParty/Ink/ink_compiler.dll"));
+        RuntimeDependencies.Add("$(TargetOutputDir)/ink-engine-runtime.dll", Path.Combine(pluginDirectory, "ThirdParty/Ink/ink-engine-runtime.dll"));
+        RuntimeDependencies.Add("$(TargetOutputDir)/InkGlue.dll", Path.Combine(pluginDirectory, "ThirdParty/Ink/InkGlue.dll"));
+
         PrecompileForTargets = PrecompileTargetsType.Any;
     }
 }
