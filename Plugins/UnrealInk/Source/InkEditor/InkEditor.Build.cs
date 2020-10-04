@@ -45,6 +45,7 @@ public class InkEditor : ModuleRules
 				"Projects",
                 "CoreUObject",
                 "Engine",
+				"MessageLog",
 				"UnrealEd",
                 "Ink"
 				// ... add other public dependencies that you statically link with here ...

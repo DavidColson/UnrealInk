@@ -16,5 +16,14 @@ public:
 	static UInkCompiler* NewInkCompiler(FString inkFileContents, FString inkFileName);
 
 	UFUNCTION()
+	TArray<FString> GetErrors();
+
+	UFUNCTION()
+	TArray<FString> GetWarnings();
+
+	UFUNCTION()
+	TArray<FString> GetAuthorMessages();
+
+	UFUNCTION()
 	FString CompileToJson();
 };

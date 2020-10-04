@@ -30,6 +30,51 @@ UInkCompiler* UInkCompiler::NewInkCompiler(FString inkFileContents, FString inkF
 }
 
 ////////////////////////////////////////////////////////
+TArray<FString> UInkCompiler::GetErrors()
+{
+	TArray<FString> errors;
+
+	MonoArray* result = MonoInvoke<MonoArray*>("GetErrors", nullptr);
+	for (int i = 0; i < mono_array_length(result); i++)
+	{
+		MonoString* variableName = mono_array_get(result, MonoString*, i);
+		errors.Add(FString(mono_string_to_utf8(variableName)));
+	}
+
+	return errors;
+}
+
+////////////////////////////////////////////////////////
+TArray<FString> UInkCompiler::GetWarnings()
+{
+	TArray<FString> warnings;
+
+	MonoArray* result = MonoInvoke<MonoArray*>("GetWarnings", nullptr);
+	for (int i = 0; i < mono_array_length(result); i++)
+	{
+		MonoString* variableName = mono_array_get(result, MonoString*, i);
+		warnings.Add(FString(mono_string_to_utf8(variableName)));
+	}
+
+	return warnings;
+}
+
+////////////////////////////////////////////////////////
+TArray<FString> UInkCompiler::GetAuthorMessages()
+{
+	TArray<FString> messages;
+
+	MonoArray* result = MonoInvoke<MonoArray*>("GetAuthorMessages", nullptr);
+	for (int i = 0; i < mono_array_length(result); i++)
+	{
+		MonoString* variableName = mono_array_get(result, MonoString*, i);
+		messages.Add(FString(mono_string_to_utf8(variableName)));
+	}
+
+	return messages;
+}
+
+////////////////////////////////////////////////////////
 FString UInkCompiler::CompileToJson()
 {
 	return MonoInvoke<FString>("CompileToJson", NULL);

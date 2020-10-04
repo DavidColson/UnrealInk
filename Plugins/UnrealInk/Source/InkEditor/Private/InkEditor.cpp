@@ -3,6 +3,7 @@
 #include "InkEditor.h"
 
 #include "AssetToolsModule.h"
+#include "MessageLogModule.h"
 
 #include "StoryAssetFactory.h"
 
@@ -22,6 +23,14 @@ void FInkEditorModule::StartupModule()
 	{
 		TSharedRef<IAssetTypeActions> Action = MakeShareable(new FAssetTypeActions_StoryAsset);
 		AssetTools.RegisterAssetTypeActions(Action);
+	}
+
+	FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+	{
+		FMessageLogInitializationOptions InitOptions;
+		InitOptions.bAllowClear = true;
+		InitOptions.bShowFilters = true;
+		MessageLogModule.RegisterLogListing("InkCompiler", LOCTEXT("InkCompiler", "Ink Compiler"), InitOptions);
 	}
 }
 

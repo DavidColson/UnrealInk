@@ -37,6 +37,8 @@ static MonoAssembly* assembly_preload_hook(MonoAssemblyName *aname, char **assem
 		AsmName = AsmName + TEXT(".dll");
 	}
 
+	FString AttemptedSearchPaths;
+
 	for (FString searchPath : MonoPreloadSearchPaths)
 	{
 		// Determine if file exists in the search path
@@ -47,16 +49,15 @@ static MonoAssembly* assembly_preload_hook(MonoAssemblyName *aname, char **assem
 			if (!FPaths::FileExists(AsmPath))
 			{
 				FString AbsoluteAssemblyPath = FileManager.ConvertToAbsolutePathForExternalAppForRead(*AsmPath);
-				UE_LOG(LogInk, Log, TEXT("Failed to find assembly %s in path %s"), *AsmName, *AbsoluteAssemblyPath);
+				AttemptedSearchPaths.Appendf(TEXT("%s\n"), *AbsoluteAssemblyPath);
 				continue;
 			}
 		}
 
 		FString AbsoluteAssemblyPath = FileManager.ConvertToAbsolutePathForExternalAppForRead(*AsmPath);
 
-
 		// Run mono_assmebly_open
-		// REturn success
+		// Return success
 		MonoImageOpenStatus status;
 		MonoAssembly *loaded_asm = mono_assembly_open(TCHAR_TO_ANSI(*AbsoluteAssemblyPath), &status);
 		if (loaded_asm)
@@ -65,7 +66,9 @@ static MonoAssembly* assembly_preload_hook(MonoAssemblyName *aname, char **assem
 			return loaded_asm;
 		}
 	}
-	UE_LOG(LogInk, Fatal, TEXT("Failed to load assembly '%s'"), *AsmName);
+
+	UE_LOG(LogInk, Fatal, TEXT("Failed to load assembly '%s' searched in the following folders: \n %s"), *AsmName, *AttemptedSearchPaths);
+	
 	return nullptr;
 }
 

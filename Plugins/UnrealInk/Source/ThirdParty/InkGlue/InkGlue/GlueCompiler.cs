@@ -23,13 +23,17 @@ namespace InkGlue
 
 		public GlueInkCompiler(string storyFileContents, string storyFileName)
 		{
-			// Create compiler object
-			compiler = new Compiler(storyFileContents, new Compiler.Options
+			errors = new List<string>();
+			warnings = new List<string>();
+            authorMessages = new List<string>();
+
+            // Create compiler object
+            compiler = new Compiler(storyFileContents, new Compiler.Options
 			{
 				sourceFilename = storyFileName,
 				pluginNames = null,
 				countAllVisits = false,
-				errorHandler = null, // TODO: Make an actual error handler that's useful
+				errorHandler = OnError,
 				fileHandler = this
 			});
 
@@ -38,10 +42,47 @@ namespace InkGlue
 
 		public string CompileToJson()
 		{
-			return story.ToJson();
+			if (story)
+				return story.ToJson();
+			return "";
+		}
+        public string[] GetErrors()
+        {
+            return errors.ToArray();
+        }
+
+        public string[] GetWarnings()
+        {
+            return warnings.ToArray();
+        }
+
+        public string[] GetAuthorMessages()
+        {
+            return authorMessages.ToArray();
+        }
+
+        private void OnError(string message, ErrorType type)
+		{
+			switch (type)
+            {
+                case ErrorType.Author:
+                    authorMessages.Add(message);
+                    break;
+
+                case ErrorType.Warning:
+                    warnings.Add(message);
+                    break;
+
+                case ErrorType.Error:
+                    errors.Add(message);
+                    break;
+            }
 		}
 
-		Story story;
+        Story story;
 		Compiler compiler;
-	}
+		List<string> errors;
+        List<string> warnings;
+        List<string> authorMessages;
+    }
 }

@@ -8,6 +8,7 @@
 #include "InkEditor.h"
 #include "InkCompiler.h"
 #include "Misc/FileHelper.h"
+#include "Misc\FeedbackContext.h"
 #include "EditorFramework/AssetImportData.h"
 
 void FAssetTypeActions_StoryAsset::GetResolvedSourceFilePaths(const TArray<UObject*>& TypeAssets, TArray<FString>& OutSourceFilePaths) const
@@ -78,8 +79,39 @@ UObject * UStoryAssetFactory::FactoryCreateFile(UClass * InClass, UObject * InPa
 		{
 			// Make new inkcompiler object
 			UInkCompiler* compiler = UInkCompiler::NewInkCompiler(FileContents, Filename);
-			FString compiledStory = compiler->CompileToJson();
 
+			FMessageLog InkCompilerLog("InkCompiler");
+
+			TArray<FString> warnings = compiler->GetWarnings();
+			if (warnings.Num() != 0)
+			{
+				for (int i = 0; i < warnings.Num(); i++)
+					InkCompilerLog.Warning(FText::FromString(warnings[i]));
+				InkCompilerLog.Open(EMessageSeverity::Warning);
+			}
+
+			TArray<FString> authorMessages = compiler->GetAuthorMessages();
+			if (authorMessages.Num() != 0)
+			{
+				for (int i = 0; i < authorMessages.Num(); i++)
+					InkCompilerLog.Info(FText::FromString(authorMessages[i]));
+				InkCompilerLog.Open(EMessageSeverity::Info);
+			}
+			
+			TArray<FString> errors = compiler->GetErrors();
+			if (errors.Num() != 0)
+			{
+				for (int i = 0; i < errors.Num(); i++)
+					InkCompilerLog.Error(FText::FromString(errors[i]));
+
+				InkCompilerLog.Open(EMessageSeverity::Error);
+				bOutOperationCanceled = true;
+				GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPostImport(this, nullptr);
+				return nullptr;
+			}
+
+
+			FString compiledStory = compiler->CompileToJson();
 
 			// Run the function
 			NewStory = NewObject<UStoryAsset>(InParent, InClass, InName, Flags);
