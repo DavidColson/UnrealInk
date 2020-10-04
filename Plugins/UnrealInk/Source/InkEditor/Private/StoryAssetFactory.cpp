@@ -87,7 +87,6 @@ UObject * UStoryAssetFactory::FactoryCreateFile(UClass * InClass, UObject * InPa
 			{
 				for (int i = 0; i < warnings.Num(); i++)
 					InkCompilerLog.Warning(FText::FromString(warnings[i]));
-				InkCompilerLog.Open(EMessageSeverity::Warning);
 			}
 
 			TArray<FString> authorMessages = compiler->GetAuthorMessages();
@@ -95,7 +94,6 @@ UObject * UStoryAssetFactory::FactoryCreateFile(UClass * InClass, UObject * InPa
 			{
 				for (int i = 0; i < authorMessages.Num(); i++)
 					InkCompilerLog.Info(FText::FromString(authorMessages[i]));
-				InkCompilerLog.Open(EMessageSeverity::Info);
 			}
 			
 			TArray<FString> errors = compiler->GetErrors();

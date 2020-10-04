@@ -61,6 +61,9 @@ public:
 	UStory();
 	~UStory();
 
+	UFUNCTION(BlueprintPure, Category = Ink)
+	static int GetInkVersionCurrent() { return 19; }
+
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	static UStory* NewStory(UStoryAsset* StoryAsset);
 

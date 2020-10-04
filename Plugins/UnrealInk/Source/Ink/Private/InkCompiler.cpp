@@ -35,7 +35,7 @@ TArray<FString> UInkCompiler::GetErrors()
 	TArray<FString> errors;
 
 	MonoArray* result = MonoInvoke<MonoArray*>("GetErrors", nullptr);
-	for (int i = 0; i < mono_array_length(result); i++)
+	for (uintptr_t i = 0; i < mono_array_length(result); i++)
 	{
 		MonoString* variableName = mono_array_get(result, MonoString*, i);
 		errors.Add(FString(mono_string_to_utf8(variableName)));
@@ -50,7 +50,7 @@ TArray<FString> UInkCompiler::GetWarnings()
 	TArray<FString> warnings;
 
 	MonoArray* result = MonoInvoke<MonoArray*>("GetWarnings", nullptr);
-	for (int i = 0; i < mono_array_length(result); i++)
+	for (uintptr_t i = 0; i < mono_array_length(result); i++)
 	{
 		MonoString* variableName = mono_array_get(result, MonoString*, i);
 		warnings.Add(FString(mono_string_to_utf8(variableName)));
@@ -65,7 +65,7 @@ TArray<FString> UInkCompiler::GetAuthorMessages()
 	TArray<FString> messages;
 
 	MonoArray* result = MonoInvoke<MonoArray*>("GetAuthorMessages", nullptr);
-	for (int i = 0; i < mono_array_length(result); i++)
+	for (uintptr_t i = 0; i < mono_array_length(result); i++)
 	{
 		MonoString* variableName = mono_array_get(result, MonoString*, i);
 		messages.Add(FString(mono_string_to_utf8(variableName)));
