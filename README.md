@@ -34,7 +34,6 @@ This plugin isn't complete and there are some lacking features and/or problems, 
 
 - Execute Function and Bind Function calls are not implemented yet
 - The Profiler and profile node stuff isn't implemented yet
-- The plugin does not automatically package the mono and ink assemblies when you package your game, you have to do this by youself
 - Hasn't been tested on Mac, but with a OSX copy of mono sgen it should theoretically work
 
 # How does it work?
