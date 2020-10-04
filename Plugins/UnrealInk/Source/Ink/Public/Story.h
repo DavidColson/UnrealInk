@@ -127,6 +127,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void RemoveVariableObserver(const FVariableObserver& observer, FString specificVariableName = "");
 
+	UFUNCTION(BlueprintCallable, Category = Ink)
+	FString BuildStringOfHeirarchy();
+
 private:
 	typedef TPair<int, FString> FDelegateMapKey;
 	static TMap<FDelegateMapKey, TArray<FVariableObserver>> delegateMap;

@@ -350,3 +350,9 @@ void UStory::RemoveVariableObserver(const FVariableObserver& observer, FString s
 		}
 	}
 }
+
+////////////////////////////////////////////////////////
+FString UStory::BuildStringOfHeirarchy()
+{
+	return MonoInvoke<FString>("BuildStringOfHeirarchy", NULL);
+}

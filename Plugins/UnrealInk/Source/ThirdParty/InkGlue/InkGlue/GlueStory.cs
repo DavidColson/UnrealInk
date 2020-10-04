@@ -137,6 +137,11 @@ namespace InkGlue
 			_story.RemoveVariableObserver(InternalObserve, variableName);
 		}
 
+		public string BuildStringOfHeirarchy()
+        {
+			return _story.BuildStringOfHierarchy();
+        }
+
 		Story _story;
 		int _instanceId = -1;
 	}
