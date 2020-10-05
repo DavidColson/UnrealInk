@@ -28,6 +28,10 @@ I have provided an example project demonstrating a basic usage of the system, wh
 
 It's very similar to the blueprints here as well. Load a story asset file, call `UStory::NewStory();` and then all existing function calls are basically the same as in the Inkle library, with a couple of exceptions (variadic functions). I will provide an example of this soon. For now take a look at the `Story.h` file for a list of possible function calls.
 
+# How does it work?
+
+It works by embedding the Mono runtime directly into the plugin in Unreal, and then has a special C# assembly called InkGlue, which marshalls data and function calls between C# and C++ to lessen the amount of complicated binding code present in C++. It requires linking with mono, and since I've only got a windows PC currently I've provided the windows mono library. Theoretically it'll work fine on Mac, you just need to link the mono-sgen dynlib.
+
 # Notable Problems
 
 This plugin isn't complete and there are some lacking features and/or problems, so be aware of them
@@ -35,8 +39,9 @@ This plugin isn't complete and there are some lacking features and/or problems, 
 - variableState access is not yet implemented
 - Execute Function and Bind Function calls are not implemented yet
 - The Profiler and profile node stuff isn't implemented yet
-- Hasn't been tested on Mac, but with a OSX copy of mono sgen it should theoretically work
 
-# How does it work?
+## Platform support
 
-It works by embedding the Mono runtime directly into the plugin in Unreal, and then has a special C# assembly called InkGlue, which marshalls data and function calls between C# and C++ to lessen the amount of complicated binding code present in C++. It requires linking with mono, and since I've only got a windows PC currently I've provided the windows mono library. Theoretically it'll work fine on Mac, you just need to link the mono-sgen dynlib.
+- Windows - First class support
+- Mac - Theoretically involves linking mono-sgen dynamic library as is done in [mono-ue](https://mono-ue.github.io/) which works on mac but I've not tested it. **Seeking people with a Mac to help me test this**
+- Consoles - Mono is stated to work on PS4 and Xbox One/Series X but I have no access to dev kits so I cannot test this. Again it would involve linking the correct libraries and packaging the necessary assemblies 
