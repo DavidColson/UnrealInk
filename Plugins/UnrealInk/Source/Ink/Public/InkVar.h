@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "InkVar.generated.h"
 
 // A wrapper for passing around ink vars to and fro ink itself

@@ -18,7 +18,7 @@ TArray<FString> UVariablesState::GetVariables()
 
 	// Grab variable names
 	MonoArray* result = MonoInvoke<MonoArray*>("GetVariables", nullptr);
-	for (int i = 0; i < mono_array_length(result); i++)
+	for (uintptr_t i = 0; i < mono_array_length(result); i++)
 	{
 		MonoString* variableName = mono_array_get(result, MonoString*, i);
 		variableNames.Add(FString(mono_string_to_utf8(variableName)));

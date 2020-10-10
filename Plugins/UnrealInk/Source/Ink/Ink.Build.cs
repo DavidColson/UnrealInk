@@ -97,13 +97,13 @@ public class Ink : ModuleRules
         {
             string LibraryName = "mono-2.0-sgen";
             PublicAdditionalLibraries.Add(Path.Combine(MonoLibPath, LibraryName + ".lib"));
-            PublicDelayLoadDLLs.Add(Path.Combine(MonoLibPath, LibraryName + ".dll"));
+            PublicDelayLoadDLLs.Add(LibraryName + ".dll");
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
             string LibraryName = "libmonosgen-2.0";
             PublicAdditionalLibraries.Add("iconv");
-            PublicDelayLoadDLLs.Add(Path.Combine(MonoLibPath, LibraryName + ".dylib"));
+            PublicDelayLoadDLLs.Add(LibraryName + ".dylib");
         }
         else
         {

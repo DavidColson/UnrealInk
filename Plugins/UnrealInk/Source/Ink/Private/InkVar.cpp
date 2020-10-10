@@ -1,6 +1,8 @@
 #include "InkVar.h"
 
 #include "Misc/AssertionMacros.h"
+#include "Logging/TokenizedMessage.h"
+#include "Logging/MessageLog.h"
 
 #define LOCTEXT_NAMESPACE "UnrealInk"
 
