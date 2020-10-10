@@ -1,4 +1,4 @@
-// Copyright 2018 David Colson. All Rights Reserved.
+// Copyright 2020 David Colson. All Rights Reserved.
 
 #pragma once
 

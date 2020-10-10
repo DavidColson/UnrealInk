@@ -91,6 +91,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar> vars);
 
+	UFUNCTION(BlueprintPure, Category = Ink)
+	class UVariablesState* VariablesState();
+
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ObserveVariable(FString variableName, const FVariableObserver& observer);
 

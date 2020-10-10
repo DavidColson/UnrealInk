@@ -5,79 +5,79 @@ using Ink.Runtime;
 
 namespace InkGlue
 {
-	public class GlueStory
+	public enum InkVarType
+    {
+        Float,
+        Int,
+        String,
+        None
+    }
+
+    // Don't change structure of this without changing matching C++ interop struct
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+    public struct InkVarInterop
+    {
+        [MarshalAs(UnmanagedType.U1)]
+        public InkVarType Type;
+
+        [MarshalAs(UnmanagedType.R4)]
+        public float FloatVal;
+
+        [MarshalAs(UnmanagedType.I4)]
+        public int IntVal;
+
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string StringVal;
+
+        public InkVarInterop(object arg)
+        {
+            FloatVal = 0; IntVal = 0; StringVal = null;
+
+            if (arg is float)
+            {
+                FloatVal = (float)arg;
+                Type = InkVarType.Float;
+            }
+            else if (arg is int)
+            {
+                IntVal = (int)arg;
+                Type = InkVarType.Int;
+            }
+            else if (arg is string)
+            {
+                StringVal = (string)arg;
+                Type = InkVarType.String;
+            }
+            else
+            {
+                throw new Exception("Invalid Ink Variable Type: " + arg.GetType());
+            }
+        }
+
+        public object BoxedValue
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case InkVarType.Float:
+                        return FloatVal;
+                    case InkVarType.Int:
+                        return IntVal;
+                    case InkVarType.String:
+                        return StringVal;
+                    default:
+                    case InkVarType.None:
+                        return null;
+                }
+            }
+        }
+    }
+
+    public class GlueStory
 	{
 		[DllImport("__Internal")]
 		public static extern void ObserverCallback(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, InkVarInterop newValue);
-
-        public enum InkVarType
-        {
-            Float,
-            Int,
-            String,
-            None
-        }
-
-        // Don't change structure of this without changing matching C++ interop struct
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public struct InkVarInterop
-        {
-            [MarshalAs(UnmanagedType.U1)]
-            public InkVarType Type;
-
-            [MarshalAs(UnmanagedType.R4)]
-            public float FloatVal;
-
-            [MarshalAs(UnmanagedType.I4)]
-            public int IntVal;
-
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string StringVal;
-
-            public InkVarInterop(object arg)
-            {
-                FloatVal = 0; IntVal = 0; StringVal = null;
-
-                if (arg is float)
-                {
-                    FloatVal = (float)arg;
-                    Type = InkVarType.Float;
-                }
-                else if (arg is int)
-                {
-                    IntVal = (int)arg;
-                    Type = InkVarType.Int;
-                }
-                else if (arg is string)
-                {
-                    StringVal = (string)arg;
-                    Type = InkVarType.String;
-                }
-                else
-                {
-                    throw new Exception("Invalid Ink Variable Type: " + arg.GetType());
-                }
-            }
-
-            public object BoxedValue
-            {
-                get
-                {
-                    switch (Type)
-                    {
-                        case InkVarType.Float:
-                            return FloatVal;
-                        case InkVarType.Int:
-                            return IntVal;
-                        case InkVarType.String:
-                            return StringVal;
-                        default:
-                        case InkVarType.None:
-                            return null;
-                    }
-                }
-            }
-        }
 
         public GlueStory(string JsonString, int instanceId)
 		{
@@ -194,7 +194,12 @@ namespace InkGlue
 			_story.ChoosePathString(path, resetCallStack, arguments);
 		}
 
-		void InternalObserve(string variableName, object newValue)
+        public GlueVariablesState VariablesState()
+        {
+            return new GlueVariablesState(_story.variablesState);
+        }
+
+        void InternalObserve(string variableName, object newValue)
 		{
 			ObserverCallback(_instanceId, variableName, new InkVarInterop(newValue));
 		}

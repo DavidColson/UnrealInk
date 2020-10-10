@@ -6,6 +6,7 @@
 #include "StoryState.h"
 #include "Choice.h"
 #include "Ink.h"
+#include "VariablesState.h"
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
 
@@ -297,6 +298,13 @@ void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar>
 	Params[2] = &ResetCallstack;
 
 	MonoInvoke<void>("ChoosePathString", Params);
+}
+
+////////////////////////////////////////////////////////
+class UVariablesState* UStory::VariablesState()
+{
+	MonoObject* MonoVariablesStateInstance = MonoInvoke<MonoObject*>("VariablesState", nullptr);
+	return UVariablesState::NewVariablesState(MonoVariablesStateInstance);
 }
 
 ////////////////////////////////////////////////////////
