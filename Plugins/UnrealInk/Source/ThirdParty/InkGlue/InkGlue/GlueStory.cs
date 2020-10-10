@@ -214,6 +214,16 @@ namespace InkGlue
 			_story.RemoveVariableObserver(InternalObserve, variableName);
 		}
 
+		public bool HasFunction(string functionName)
+        {
+			return _story.HasFunction(functionName);
+        }
+
+		public object EvaluateFunction(string functionName, out string textOutput, object[] arguments)
+        {
+			return _story.EvaluateFunction(functionName, out textOutput, arguments);
+        }
+
 		public string BuildStringOfHeirarchy()
         {
 			return _story.BuildStringOfHierarchy();

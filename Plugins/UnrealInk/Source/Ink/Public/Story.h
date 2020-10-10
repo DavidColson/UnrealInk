@@ -103,6 +103,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void RemoveVariableObserver(const FVariableObserver& observer, FString specificVariableName = "");
 
+	UFUNCTION(BlueprintPure, Category = Ink)
+	bool HasFunction(FString FunctionName);
+
+	UFUNCTION(BlueprintCallable, Category = Ink, meta = (AutoCreateRefTerm = "Arguments"))
+	FInkVar EvaluateFunction(FString FunctionName, TArray<FInkVar> Arguments);
+
+	UFUNCTION(BlueprintCallable, Category = Ink, meta = (AutoCreateRefTerm = "Arguments"))
+	FInkVar EvaluateFunctionOutString(FString FunctionName, FString& OutString, TArray<FInkVar> Arguments);
+
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	FString BuildStringOfHeirarchy();
 

@@ -22,11 +22,23 @@ FInkVarInterop FInkVar::ToInterop() const
 	return result;
 }
 
-void ThrowException()
+FText InkVarTypeToText(EInkVarType Type)
 {
+	FText Result;
+	switch (Type)
+	{
+	case EInkVarType::Float: return LOCTEXT("InkVarFloatType", "Float"); break;
+	case EInkVarType::Int: return LOCTEXT("InkVarIntType", "Int"); break;
+	case EInkVarType::String: return LOCTEXT("InkVarStringType", "String"); break;
+	case EInkVarType::None:  return LOCTEXT("InkVarNoneType", "None"); break;
+	}
+	return FText();
+}
 
+void ThrowException(EInkVarType From, EInkVarType To)
+{
 	TSharedRef<FTokenizedMessage> Message = FTokenizedMessage::Create(EMessageSeverity::Error);
-	Message->AddToken(FTextToken::Create(FText::Format(LOCTEXT("RuntimeErrorMessageFmt", "Blueprint Runtime Error: \"{0}\"."), FText::FromString("Casting incorrect ink var"))));
+	Message->AddToken(FTextToken::Create(FText::Format(LOCTEXT("InkVarConversionMessageFmt", "Ink Var Conversion Error: Attempting to convert ink var of type \"{0}\" to type \"{1}\"."), InkVarTypeToText(From), InkVarTypeToText(To))));
 	FMessageLog("PIE").AddMessage(Message);
 }
 
@@ -35,7 +47,7 @@ FString UInkVarLibrary::Conv_InkVarString(const FInkVar& InkVar)
 {
 	if (InkVar.type != EInkVarType::String)
 	{
-		ThrowException();
+		ThrowException(InkVar.type, EInkVarType::String);
 		return FString(TEXT(""));
 	}
 	return InkVar.stringVar;
@@ -45,7 +57,7 @@ int UInkVarLibrary::Conv_InkVarInt(const FInkVar& InkVar)
 {
 	if (InkVar.type != EInkVarType::Int)
 	{
-		ThrowException();
+		ThrowException(InkVar.type, EInkVarType::Int);
 		return 0;
 	}
 	return InkVar.intVar;
@@ -55,7 +67,7 @@ float UInkVarLibrary::Conv_InkVarFloat(const FInkVar& InkVar)
 {
 	if (InkVar.type != EInkVarType::Float)
 	{
-		ThrowException();
+		ThrowException(InkVar.type, EInkVarType::Float);
 		return 0.f;
 	}
 	return InkVar.floatVar;
@@ -65,7 +77,7 @@ FName UInkVarLibrary::Conv_InkVarName(const FInkVar& InkVar)
 {
 	if (InkVar.type != EInkVarType::String)
 	{
-		ThrowException();
+		ThrowException(InkVar.type, EInkVarType::String);
 		return NAME_None;
 	}
 	return FName(*InkVar.stringVar);
@@ -75,7 +87,7 @@ FText UInkVarLibrary::Conv_InkVarText(const FInkVar& InkVar)
 {
 	if (InkVar.type != EInkVarType::String)
 	{
-		ThrowException();
+		ThrowException(InkVar.type, EInkVarType::String);
 		return FText::GetEmpty();
 	}
 	return FText::FromString(InkVar.stringVar);
@@ -83,9 +95,9 @@ FText UInkVarLibrary::Conv_InkVarText(const FInkVar& InkVar)
 
 bool UInkVarLibrary::Conv_InkVarBool(const FInkVar& InkVar)
 {
-	if (InkVar.type != EInkVarType::String)
+	if (InkVar.type != EInkVarType::Int)
 	{
-		ThrowException();
+		ThrowException(InkVar.type, EInkVarType::Int);
 		return false;
 	}
 	return InkVar.intVar > 0;

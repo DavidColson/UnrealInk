@@ -28,3 +28,9 @@ VAR fogs_current_mood = 1
 *   ... but I said nothing[] and <> 
 - we passed the day in silence
 - -> END
+
+=== function say_yes_to_everything ===
+    ~ return true
+
+=== function lerp(a, b, k) ===
+    ~ return ((b - a) * k) + a

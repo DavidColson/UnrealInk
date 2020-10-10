@@ -75,6 +75,7 @@ UStory* UStory::NewStory(UStoryAsset* StoryAsset)
 	// Manually added methods (have unique parameters)
 	NewStory->ManualMethodBind("ObserveVariable", 1);
 	NewStory->ManualMethodBind("RemoveVariableObserver", 1);
+	NewStory->ManualMethodBind("EvaluateFunction", 3);
 
 	return NewStory;
 }
@@ -382,6 +383,68 @@ void UStory::RemoveVariableObserver(const FVariableObserver& observer, FString s
 			}*/
 		}
 	}
+}
+
+////////////////////////////////////////////////////////
+bool UStory::HasFunction(FString FunctionName)
+{
+	void* args[1];
+	args[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*FunctionName));;
+	return MonoInvoke<bool>("HasFunction", args);
+}
+
+////////////////////////////////////////////////////////
+FInkVar UStory::EvaluateFunction(FString FunctionName, TArray<FInkVar> Arguments)
+{
+	FString discard;
+	return EvaluateFunctionOutString(FunctionName, discard, Arguments);
+}
+
+////////////////////////////////////////////////////////
+FInkVar UStory::EvaluateFunctionOutString(FString FunctionName, FString& OutString, TArray<FInkVar> Arguments)
+{
+	MonoArray* ArgsArray;
+	ArgsArray = mono_array_new(mono_domain_get(), mono_get_object_class(), Arguments.Num());
+
+	for (int i = 0; i < Arguments.Num(); i++)
+	{
+		FInkVar& Argument = Arguments[i];
+		MonoObject* BoxedParam = nullptr;
+		switch (Argument.type)
+		{
+		case EInkVarType::Float:
+			BoxedParam = mono_value_box(mono_domain_get(), mono_get_single_class(), &Argument.floatVar);
+			break;
+		case EInkVarType::Int:
+			BoxedParam = mono_value_box(mono_domain_get(), mono_get_int32_class(), &Argument.intVar);
+			break;
+		case EInkVarType::String:
+			BoxedParam = (MonoObject*)mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Argument.stringVar));
+			break;
+		}
+		mono_array_set(ArgsArray, MonoObject*, i, BoxedParam);
+	}
+
+	MonoString* OutTextString = mono_string_new(mono_domain_get(), "");
+
+	void* Params[3];
+	Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*FunctionName));
+	Params[1] = &OutTextString;
+	Params[2] = ArgsArray;
+
+	MonoObject* Result = MonoInvoke<MonoObject*>("EvaluateFunction", Params);
+
+	OutString = FString(mono_string_to_utf8(OutTextString));
+
+	MonoClass* pClass = mono_object_get_class(Result);
+	if (pClass == mono_get_single_class())
+		return FInkVar(*(float*)mono_object_unbox(Result));
+	else if (pClass == mono_get_int32_class())
+		return FInkVar(*(int*)mono_object_unbox(Result));
+	else if (pClass == mono_get_string_class())
+		return FInkVar(FString(mono_string_to_utf8((MonoString*)Result)));
+
+	return FInkVar();
 }
 
 ////////////////////////////////////////////////////////

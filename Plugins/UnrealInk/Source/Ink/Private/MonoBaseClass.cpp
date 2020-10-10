@@ -65,7 +65,7 @@ void UMonoBaseClass::FindMethods()
 
 void UMonoBaseClass::ManualMethodBind(FString MethodName, int numParams)
 {
-	MonoMethod* Method = mono_class_get_method_from_name(Class, TCHAR_TO_ANSI(*MethodName), 1);
+	MonoMethod* Method = mono_class_get_method_from_name(Class, TCHAR_TO_ANSI(*MethodName), numParams);
 	if (Method)
 		Methods.Add(MethodName, Method);
 }
