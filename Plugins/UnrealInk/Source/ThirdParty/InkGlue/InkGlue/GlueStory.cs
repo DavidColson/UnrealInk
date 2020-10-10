@@ -18,7 +18,7 @@ namespace InkGlue
     public struct InkVarInterop
     {
         [MarshalAs(UnmanagedType.U1)]
-        public InkVarType Type;
+        public byte Type;
 
         [MarshalAs(UnmanagedType.R4)]
         public float FloatVal;
@@ -36,17 +36,17 @@ namespace InkGlue
             if (arg is float)
             {
                 FloatVal = (float)arg;
-                Type = InkVarType.Float;
+                Type = 0;
             }
             else if (arg is int)
             {
                 IntVal = (int)arg;
-                Type = InkVarType.Int;
+                Type = 1;
             }
             else if (arg is string)
             {
                 StringVal = (string)arg;
-                Type = InkVarType.String;
+                Type = 2;
             }
             else
             {
@@ -60,14 +60,14 @@ namespace InkGlue
             {
                 switch (Type)
                 {
-                    case InkVarType.Float:
+                    case 0:
                         return FloatVal;
-                    case InkVarType.Int:
+                    case 1:
                         return IntVal;
-                    case InkVarType.String:
+                    case 2:
                         return StringVal;
                     default:
-                    case InkVarType.None:
+                    case 3:
                         return null;
                 }
             }
@@ -78,6 +78,9 @@ namespace InkGlue
 	{
 		[DllImport("__Internal")]
 		public static extern void ObserverCallback(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, InkVarInterop newValue);
+
+        [DllImport("__Internal")]
+        public static extern InkVarInterop ExternalFunctionCallback([MarshalAs(UnmanagedType.I4)] int instanceId, [MarshalAs(UnmanagedType.LPStr)] string functionName, [MarshalAs(UnmanagedType.U4)] uint numArguments, [MarshalAs(UnmanagedType.LPArray)] InkVarInterop[] arguments);
 
         public GlueStory(string JsonString, int instanceId)
 		{
@@ -224,7 +227,34 @@ namespace InkGlue
 			return _story.EvaluateFunction(functionName, out textOutput, arguments);
         }
 
-		public string BuildStringOfHeirarchy()
+        object InternalFunctionHandler(string functionName, object[] args)
+        {
+            // Convert arguments into Interop Variable structs
+            InkVarInterop[] cArgs = new InkVarInterop[args.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                cArgs[i] = new InkVarInterop(args[i]);
+            }
+
+            // Call the callback
+            InkVarInterop var = ExternalFunctionCallback(_instanceId, functionName, (uint)cArgs.Length, cArgs);
+
+            return var.BoxedValue;
+        }
+
+        public void RegisterFunction(string functionName)
+        {
+            // Bind to internal C# method
+            _story.BindExternalFunctionGeneral(functionName, args => InternalFunctionHandler(functionName, args));
+        }
+
+        public void UnregisterFunction(string functionName)
+        {
+            // Unbind
+            _story.UnbindExternalFunction(functionName);
+        }
+
+        public string BuildStringOfHeirarchy()
         {
 			return _story.BuildStringOfHierarchy();
         }

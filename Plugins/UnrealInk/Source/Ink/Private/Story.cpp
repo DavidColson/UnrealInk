@@ -12,37 +12,64 @@
 
 #include <mono/jit/jit.h>
 
+int UStory::InstanceCounter = 0;
+TMap<TPair<int, FString>, TArray<FVariableObserver>> UStory::VarObserverMap({});
+TMap<TPair<int, FString>, FExternalFunctionHandler> UStory::ExternalFuncMap({});
 
-int UStory::instanceCounter = 0;
-TMap<TPair<int, FString>, TArray<FVariableObserver>> UStory::delegateMap({});
+
+////////////////////////////////////////////////////////
+extern "C" __declspec(dllexport) void ObserverCallback(int InstanceId, const char* VariableName, FInkVarInterop* NewValue)
+{
+	for (auto& _delegate : UStory::VarObserverMap[UStory::FDelegateMapKey(InstanceId, FString(VariableName))])
+	{
+		_delegate.ExecuteIfBound(FString(VariableName), FInkVar(*NewValue));
+	}
+}
+
+////////////////////////////////////////////////////////
+extern "C" __declspec(dllexport) FInkVarInterop ExternalFunctionCallback(int32 InstanceId, const char* FunctionName, uint32 NumArgs, FInkVarInterop * pArgs)
+{
+	// Create argument array
+	TArray<FInkVar> Arguments;
+	for (uint32 i = 0; i < NumArgs; i++) {
+		Arguments.Add(FInkVar(pArgs[i]));
+	}
+
+	// Get the handler for this function from the story map
+	const FExternalFunctionHandler& handler = UStory::ExternalFuncMap[UStory::FDelegateMapKey(InstanceId, FString(FunctionName))];
+
+	// Call handler
+	FInkVar Result = handler.Execute(FString(FunctionName), Arguments);
+
+	// Return result
+	return Result.ToInterop();
+}
 
 ////////////////////////////////////////////////////////
 UStory::UStory()
 {
-
 }
 
-extern "C" __declspec(dllexport) void ObserverCallback(int instanceId, const char* variableName, FInkVarInterop* newValue)
-{
-	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
-	{
-		_delegate.ExecuteIfBound(FString(variableName), FInkVar(*newValue));
-	}
-}
-
+////////////////////////////////////////////////////////
 UStory::~UStory()
 {
-	TArray<FDelegateMapKey> keysToRemove;
-	for (auto& element : delegateMap)
+	TArray<FDelegateMapKey> KeysToRemove;
+	for (auto& Element : VarObserverMap)
 	{
-		if (element.Key.Key == instanceId)
+		if (Element.Key.Key == InstanceId)
 		{
-			keysToRemove.Add(element.Key);
+			KeysToRemove.Add(Element.Key);
+			break;
 		}
 	}
-	for (auto& key : keysToRemove)
+
+	for (auto& element : ExternalFuncMap)
 	{
-		delegateMap.Remove(key);
+		if (element.Key.Key == InstanceId)
+		{
+			ExternalFuncMap.Remove(element.Key);
+			break;
+		}
 	}
 }
 
@@ -63,19 +90,20 @@ UStory* UStory::NewStory(UStoryAsset* StoryAsset)
 		return nullptr;
 	}
 
-	NewStory->instanceId = instanceCounter++;
+	NewStory->InstanceId = InstanceCounter++;
 
-	MonoString* jsonString = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*(StoryAsset->CompiledStory)));
-	void* args[2];
-	args[0] = jsonString;
-	args[1] = &(NewStory->instanceId);
+	MonoString* JsonString = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*(StoryAsset->CompiledStory)));
+	void* Args[2];
+	Args[0] = JsonString;
+	Args[1] = &(NewStory->InstanceId);
 
-	NewStory->MonoNew(args, 2);
+	NewStory->MonoNew(Args, 2);
 
 	// Manually added methods (have unique parameters)
 	NewStory->ManualMethodBind("ObserveVariable", 1);
 	NewStory->ManualMethodBind("RemoveVariableObserver", 1);
 	NewStory->ManualMethodBind("EvaluateFunction", 3);
+	NewStory->ManualMethodBind("RegisterFunction", 1);
 
 	return NewStory;
 }
@@ -96,24 +124,24 @@ bool UStory::CanContinue()
 TArray<UChoice*> UStory::CurrentChoices()
 {
 	// TODO FString here should be replaced with our analog of the choice type
-	TArray<UChoice*> returnChoices;
+	TArray<UChoice*> ReturnChoices;
 
 	MonoArray* Result = MonoInvoke<MonoArray*>("CurrentChoices", NULL);
 	for (size_t i = 0; i < mono_array_length(Result); i++)
 	{
 		MonoObject* MonoChoiceInstance = mono_array_get(Result, MonoObject*, i);
-		returnChoices.Add(UChoice::NewChoice(MonoChoiceInstance));
+		ReturnChoices.Add(UChoice::NewChoice(MonoChoiceInstance));
 	}
 
-	return returnChoices;
+	return ReturnChoices;
 }
 
 ////////////////////////////////////////////////////////
-void UStory::ChooseChoiceIndex(int index)
+void UStory::ChooseChoiceIndex(int Index)
 {
-	void* args[1];
-	args[0] = &index;
-	MonoInvoke<void>("ChooseChoiceIndex", args);
+	void* Args[1];
+	Args[0] = &Index;
+	MonoInvoke<void>("ChooseChoiceIndex", Args);
 }
 
 ////////////////////////////////////////////////////////
@@ -144,53 +172,53 @@ bool UStory::HasWarning()
 ////////////////////////////////////////////////////////
 TArray<FString> UStory::CurrentTags()
 {
-	TArray<FString>  returnTags;
+	TArray<FString>  ReturnTags;
 	MonoArray* MonoTags = MonoInvoke<MonoArray*>("CurrentTags", NULL);
 	for (size_t i = 0; i < mono_array_length(MonoTags); i++)
 	{
 		MonoString* String = mono_array_get(MonoTags, MonoString*, i);
-		returnTags.Add(FString(mono_string_to_utf8(String)));
+		ReturnTags.Add(FString(mono_string_to_utf8(String)));
 	}
-	return returnTags;
+	return ReturnTags;
 }
 
 ////////////////////////////////////////////////////////
 TArray<FString> UStory::GlobalTags()
 {
-	TArray<FString>  returnTags;
+	TArray<FString>  ReturnTags;
 	MonoArray* MonoTags = MonoInvoke<MonoArray*>("GlobalTags", NULL);
 	for (size_t i = 0; i < mono_array_length(MonoTags); i++)
 	{
 		MonoString* String = mono_array_get(MonoTags, MonoString*, i);
-		returnTags.Add(FString(mono_string_to_utf8(String)));
+		ReturnTags.Add(FString(mono_string_to_utf8(String)));
 	}
-	return returnTags;
+	return ReturnTags;
 }
 
 ////////////////////////////////////////////////////////
 TArray<FString> UStory::CurrentErrors()
 {
-	TArray<FString>  returnErrors;
+	TArray<FString>  ReturnErrors;
 	MonoArray* MonoErrors = MonoInvoke<MonoArray*>("CurrentErrors", NULL);
 	for (size_t i = 0; i < mono_array_length(MonoErrors); i++)
 	{
 		MonoString* String = mono_array_get(MonoErrors, MonoString*, i);
-		returnErrors.Add(FString(mono_string_to_utf8(String)));
+		ReturnErrors.Add(FString(mono_string_to_utf8(String)));
 	}
-	return returnErrors;
+	return ReturnErrors;
 }
 
 ////////////////////////////////////////////////////////
 TArray<FString> UStory::CurrentWarnings()
 {
-	TArray<FString>  returnWarnings;
+	TArray<FString>  ReturnWarnings;
 	MonoArray* MonoWarnings = MonoInvoke<MonoArray*>("CurrentWarnings", NULL);
 	for (size_t i = 0; i < mono_array_length(MonoWarnings); i++)
 	{
 		MonoString* String = mono_array_get(MonoWarnings, MonoString*, i);
-		returnWarnings.Add(FString(mono_string_to_utf8(String)));
+		ReturnWarnings.Add(FString(mono_string_to_utf8(String)));
 	}
-	return returnWarnings;
+	return ReturnWarnings;
 }
 
 ////////////////////////////////////////////////////////
@@ -212,11 +240,11 @@ void UStory::ResetCallstack()
 }
 
 ////////////////////////////////////////////////////////
-void UStory::ContinueAsync(float millisecondLimitAsync)
+void UStory::ContinueAsync(float MillisecondLimitAsync)
 {
-	void* args[1];
-	args[0] = &millisecondLimitAsync;
-	MonoInvoke<void>("ContinueAsync", args);
+	void* Args[1];
+	Args[0] = &MillisecondLimitAsync;
+	MonoInvoke<void>("ContinueAsync", Args);
 }
 
 ////////////////////////////////////////////////////////
@@ -234,18 +262,18 @@ bool UStory::AsyncContinueComplete()
 ////////////////////////////////////////////////////////
 TArray<FString> UStory::TagsForContentAtPath(FString Path)
 {
-	TArray<FString>  returnTags;
+	TArray<FString>  ReturnTags;
 
 	MonoString* MonoPath = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Path));
-	void* args[1];
-	args[0] = MonoPath;
-	MonoArray* MonoTags = MonoInvoke<MonoArray*>("TagsForContentAtPath", args);
+	void* Args[1];
+	Args[0] = MonoPath;
+	MonoArray* MonoTags = MonoInvoke<MonoArray*>("TagsForContentAtPath", Args);
 	for (size_t i = 0; i < mono_array_length(MonoTags); i++)
 	{
 		MonoString* String = mono_array_get(MonoTags, MonoString*, i);
-		returnTags.Add(FString(mono_string_to_utf8(String)));
+		ReturnTags.Add(FString(mono_string_to_utf8(String)));
 	}
-	return returnTags;
+	return ReturnTags;
 }
 
 // Useful variadic template
@@ -265,37 +293,37 @@ TArray<FString> UStory::TagsForContentAtPath(FString Path)
 //
 
 //////////////////////////////////////////////////////////
-void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar> vars)
+void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar> Vars)
 {
-	MonoArray* argsArray;
-	argsArray = mono_array_new(mono_domain_get(), mono_get_object_class(), vars.Num());
+	MonoArray* ArgsArray;
+	ArgsArray = mono_array_new(mono_domain_get(), mono_get_object_class(), Vars.Num());
 
-	for (int i = 0; i < vars.Num(); i++)
+	for (int i = 0; i < Vars.Num(); i++)
 	{
-		FInkVar& var = vars[i];
+		FInkVar& Var = Vars[i];
 
 		MonoObject* BoxedParam = nullptr;
 
-		switch (var.type)
+		switch (Var.type)
 		{
 		case EInkVarType::Float:
-			BoxedParam = mono_value_box(mono_domain_get(), mono_get_single_class(), &var.floatVar);
+			BoxedParam = mono_value_box(mono_domain_get(), mono_get_single_class(), &Var.floatVar);
 			break;
 		case EInkVarType::Int:
-			BoxedParam = mono_value_box(mono_domain_get(), mono_get_int32_class(), &var.intVar);
+			BoxedParam = mono_value_box(mono_domain_get(), mono_get_int32_class(), &Var.intVar);
 			break;
 		case EInkVarType::String:
-			BoxedParam = (MonoObject*)mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*var.stringVar));
+			BoxedParam = (MonoObject*)mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Var.stringVar));
 			//BoxedParam = mono_value_box(mono_domain_get(), mono_get_string_class(), monoString);
 			break;
 		}
 
-		mono_array_set(argsArray, MonoObject*, i, BoxedParam);
+		mono_array_set(ArgsArray, MonoObject*, i, BoxedParam);
 	}
 
 	void* Params[3];
 	Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Path));
-	Params[1] = argsArray;
+	Params[1] = ArgsArray;
 	Params[2] = &ResetCallstack;
 
 	MonoInvoke<void>("ChoosePathString", Params);
@@ -309,45 +337,45 @@ class UVariablesState* UStory::VariablesState()
 }
 
 ////////////////////////////////////////////////////////
-void UStory::ObserveVariable(FString variableName, const FVariableObserver & observer)
+void UStory::ObserveVariable(FString VariableName, const FVariableObserver & Observer)
 {
-	FDelegateMapKey key = FDelegateMapKey(instanceId, variableName);
+	FDelegateMapKey Key = FDelegateMapKey(InstanceId, VariableName);
 
 	// If a delegate as already been bound to this variable, add it to the list of delegates for that key, and don't bother telling C# about it
-	if (delegateMap.Contains(key))
+	if (VarObserverMap.Contains(Key))
 	{
-		delegateMap[key].Add(observer);
+		VarObserverMap[Key].Add(Observer);
 	}
 	else
 	{
-		TArray<FVariableObserver> observers;
-		observers.Add(observer);
-		delegateMap.Add(key, observers);
+		TArray<FVariableObserver> Observers;
+		Observers.Add(Observer);
+		VarObserverMap.Add(Key, Observers);
 
 		void* Params[1];
-		Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
+		Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*VariableName));
 		MonoInvoke<void>("ObserveVariable", Params);
 	}
 }
 
 ////////////////////////////////////////////////////////
-void UStory::ObserveVariables(TArray<FString> variableNames, const FVariableObserver & observer)
+void UStory::ObserveVariables(TArray<FString> VariableNames, const FVariableObserver & Observer)
 {
-	for (auto& variableName : variableNames)
+	for (auto& VariableName : VariableNames)
 	{
-		ObserveVariable(variableName, observer);
+		ObserveVariable(VariableName, Observer);
 	}
 }
 
 ////////////////////////////////////////////////////////
-void UStory::RemoveVariableObserver(const FVariableObserver& observer, FString specificVariableName /*= ""*/)
+void UStory::RemoveVariableObserver(const FVariableObserver& Observer, FString SpecificVariableName /*= ""*/)
 {
 	// Case 1, variable specified, delegate specified, Ubind this variable from this delegate
-	if (specificVariableName != "")
+	if (SpecificVariableName != "")
 	{
-		FDelegateMapKey key = FDelegateMapKey(instanceId, specificVariableName);
-		TArray<FVariableObserver>& delegates = delegateMap[key];
-		delegates.Remove(observer);
+		FDelegateMapKey key = FDelegateMapKey(InstanceId, SpecificVariableName);
+		TArray<FVariableObserver>& Delegates = VarObserverMap[key];
+		Delegates.Remove(Observer);
 
 		// -------HACK----------
 		// Due to a bug in ink runtime, we won't actually call RenoveVariableObserver as it results in a null reference exception.
@@ -364,10 +392,10 @@ void UStory::RemoveVariableObserver(const FVariableObserver& observer, FString s
 	// Case 2, variable not specified, delegate specified Unbind all variables bound to this delegate
 	else
 	{
-		for (auto& element : delegateMap)
+		for (auto& Element : VarObserverMap)
 		{
-			TArray<FVariableObserver>& delegates = element.Value;
-			delegates.Remove(observer);
+			TArray<FVariableObserver>& Delegates = Element.Value;
+			Delegates.Remove(Observer);
 
 			// -------HACK----------
 			// Due to a bug in ink runtime, we won't actually call RenoveVariableObserver as it results in a null reference exception.
@@ -388,16 +416,16 @@ void UStory::RemoveVariableObserver(const FVariableObserver& observer, FString s
 ////////////////////////////////////////////////////////
 bool UStory::HasFunction(FString FunctionName)
 {
-	void* args[1];
-	args[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*FunctionName));;
-	return MonoInvoke<bool>("HasFunction", args);
+	void* Args[1];
+	Args[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*FunctionName));;
+	return MonoInvoke<bool>("HasFunction", Args);
 }
 
 ////////////////////////////////////////////////////////
 FInkVar UStory::EvaluateFunction(FString FunctionName, TArray<FInkVar> Arguments)
 {
-	FString discard;
-	return EvaluateFunctionOutString(FunctionName, discard, Arguments);
+	FString Discard;
+	return EvaluateFunctionOutString(FunctionName, Discard, Arguments);
 }
 
 ////////////////////////////////////////////////////////
@@ -445,6 +473,22 @@ FInkVar UStory::EvaluateFunctionOutString(FString FunctionName, FString& OutStri
 		return FInkVar(FString(mono_string_to_utf8((MonoString*)Result)));
 
 	return FInkVar();
+}
+
+////////////////////////////////////////////////////////
+void UStory::RegisterExternalFunction(FString FunctionName, const FExternalFunctionHandler& function)
+{
+	// Create Mono string
+	MonoString* MonoName = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*FunctionName));
+	void* Args[1];
+	Args[0] = MonoName;
+
+	// Invoke mono method
+	MonoInvoke<void>("RegisterFunction", Args);
+
+	// Register in map
+	FDelegateMapKey key = FDelegateMapKey(InstanceId, FunctionName);
+	ExternalFuncMap.Add(key, function);
 }
 
 ////////////////////////////////////////////////////////

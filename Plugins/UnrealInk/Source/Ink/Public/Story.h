@@ -13,8 +13,10 @@ class UChoice;
 class UStoryState;
 
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FVariableObserver, FString, variableName, FInkVar, newValue);
+DECLARE_DELEGATE_RetVal_TwoParams(FInkVar, FExternalFunctionHandler, FString, TArray<FInkVar>);
 
-extern "C" __declspec(dllexport) void ObserverCallback(int instanceId, const char* variableName, FInkVarInterop* newValue);
+extern "C" __declspec(dllexport) void ObserverCallback(int InstanceId, const char* VariableName, FInkVarInterop* NewValue);
+extern "C" __declspec(dllexport) FInkVarInterop ExternalFunctionCallback(int32 InstanceId, const char* FunctionName, uint32 NumArgs, FInkVarInterop * pArgs);
 
 UCLASS(BlueprintType)
 class INK_API UStory : public UMonoBaseClass
@@ -41,7 +43,7 @@ public:
 	TArray<UChoice*> CurrentChoices();
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
-	void ChooseChoiceIndex(int index);
+	void ChooseChoiceIndex(int Index);
 
 	UFUNCTION(BlueprintPure, Category = Ink)
 	FString CurrentText();
@@ -77,7 +79,7 @@ public:
 	void ResetCallstack();
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
-	void ContinueAsync(float millisecondLimitAsync);
+	void ContinueAsync(float MillisecondLimitAsync);
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	FString ContinueMaximally();
@@ -89,19 +91,19 @@ public:
 	TArray<FString> TagsForContentAtPath(FString Path);
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
-	void ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar> vars);
+	void ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar> Vars);
 
 	UFUNCTION(BlueprintPure, Category = Ink)
 	class UVariablesState* VariablesState();
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
-	void ObserveVariable(FString variableName, const FVariableObserver& observer);
+	void ObserveVariable(FString variableName, const FVariableObserver& Observer);
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
-	void ObserveVariables(TArray<FString> variableNames, const FVariableObserver& observer);
+	void ObserveVariables(TArray<FString> variableNames, const FVariableObserver& Observer);
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
-	void RemoveVariableObserver(const FVariableObserver& observer, FString specificVariableName = "");
+	void RemoveVariableObserver(const FVariableObserver& Observer, FString SpecificVariableName = "");
 
 	UFUNCTION(BlueprintPure, Category = Ink)
 	bool HasFunction(FString FunctionName);
@@ -111,6 +113,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Ink, meta = (AutoCreateRefTerm = "Arguments"))
 	FInkVar EvaluateFunctionOutString(FString FunctionName, FString& OutString, TArray<FInkVar> Arguments);
+
+	void RegisterExternalFunction(FString FunctionName, const FExternalFunctionHandler& function);
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	FString BuildStringOfHeirarchy();
@@ -123,9 +127,11 @@ public:
 
 private:
 	typedef TPair<int, FString> FDelegateMapKey;
-	static TMap<FDelegateMapKey, TArray<FVariableObserver>> delegateMap;
-	static int instanceCounter;
-	int instanceId{ -1 };
+	static TMap<FDelegateMapKey, TArray<FVariableObserver>> VarObserverMap;
+	static TMap<FDelegateMapKey, FExternalFunctionHandler> ExternalFuncMap;
+	static int InstanceCounter;
+	int InstanceId{ -1 };
 
-	friend __declspec(dllexport) void ObserverCallback(int instanceId, const char* variableName, FInkVarInterop* newValue);
+	friend __declspec(dllexport) void ObserverCallback(int InstanceId, const char* VariableName, FInkVarInterop* NewValue);
+	friend __declspec(dllexport) FInkVarInterop ExternalFunctionCallback(int32 InstanceId, const char* FunctionName, uint32 NumArgs, FInkVarInterop * pArgs);
 };

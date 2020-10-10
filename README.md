@@ -1,6 +1,6 @@
 # Unreal Ink
 
-This is a plugin allowing you to use the excellent dynamic narrative scripting system, Ink, in Unreal Engine. [Visit the Ink repository for more information on it.](https://github.com/inkle/ink) The plugin still isn't quite done and there are a couple of advanced features from the C# API missing, but the runtime itself is up to date and fully featured. Please don't hesistate to contact me for any problems or help you need. I live at @dave_colson on twitter and you can email me at david@peripherallabs.com.
+This is a plugin allowing you to use the excellent dynamic narrative scripting system, Ink, in Unreal Engine. [Visit the Ink repository for more information on it.](https://github.com/inkle/ink) The plugin still is ostensibly finished. All of the features of the C# API are available except for the profiler, which isn't hugely important. Also the ink runtime itself is up to date and fully featured. Please don't hesistate to contact me for any problems or help you need. I live at @dave_colson on twitter and you can email me at david@peripherallabs.com.
 
 As of current master branch, compatible with Ink 0.9.0.
 
@@ -31,13 +31,6 @@ It's very similar to the blueprints here as well. Load a story asset file, call 
 # How does it work?
 
 It works by embedding the Mono runtime directly into the plugin in Unreal, and then has a special C# assembly called InkGlue, which marshalls data and function calls between C# and C++ to lessen the amount of complicated binding code present in C++. It requires linking with mono, and since I've only got a windows PC currently I've provided the windows mono library. Theoretically it'll work fine on Mac, you just need to link the mono-sgen dynlib.
-
-# Notable Problems
-
-This plugin isn't complete and there a couple missing features and/or problems, so be aware of them
-
-- Execute Function and Bind Function calls are not implemented yet
-- The Profiler and profile node stuff isn't implemented yet
 
 ## Platform support
 

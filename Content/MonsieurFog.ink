@@ -9,7 +9,7 @@ VAR fogs_current_mood = 1
     'What is the purpose of our journey, Monsieur?'
     ~ fogs_string_mood = "excellent"
     ~ fogs_current_mood = 2
-    'A wager,' he replied.
+    'A wager,' he replied. 
     * *     'A wager!'[] I returned.
             He nodded. 
             * * *   'But surely that is foolishness!'

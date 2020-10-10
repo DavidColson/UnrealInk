@@ -17,7 +17,7 @@ FInkVarInterop FInkVar::ToInterop() const
 	FInkVarInterop result = { type, floatVar, intVar, nullptr };
 	if (type == EInkVarType::String)
 	{
-		UE_LOG(LogInk, Warning, TEXT("Sending strings to C# via InkVar not currently supported!"));
+		UE_LOG(LogInk, Warning, TEXT("Sending strings to C# via InkVar not currently supported! It requires special memory management that can easily cause memory leaks"));
 	}
 	return result;
 }
@@ -42,7 +42,6 @@ void ThrowException(EInkVarType From, EInkVarType To)
 	FMessageLog("PIE").AddMessage(Message);
 }
 
-// TODO: Change this macros to errors that don't crash the editor. Give back errors to the user nicely
 FString UInkVarLibrary::Conv_InkVarString(const FInkVar& InkVar)
 {
 	if (InkVar.type != EInkVarType::String)
