@@ -34,14 +34,13 @@ It works by embedding the Mono runtime directly into the plugin in Unreal, and t
 
 # Notable Problems
 
-This plugin isn't complete and there are some lacking features and/or problems, so be aware of them
+This plugin isn't complete and there a couple missing features and/or problems, so be aware of them
 
-- variableState access is not yet implemented
 - Execute Function and Bind Function calls are not implemented yet
 - The Profiler and profile node stuff isn't implemented yet
 
 ## Platform support
 
 - Windows - First class support
-- Mac - Theoretically involves linking mono-sgen dynamic library as is done in [mono-ue](https://mono-ue.github.io/) which works on mac but I've not tested it. **Seeking people with a Mac to help me test this**
-- Consoles - Mono is stated to work on PS4 and Xbox One/Series X but I have no access to dev kits so I cannot test this. Again it would involve linking the correct libraries and packaging the necessary assemblies 
+- Mac - I have setup the build scripts to support Mac, and I've provided the third party dlls so that it'll work, but I don't have a Mac so this is untested. **Seeking people with a Mac to help me test this**
+- Consoles - Mono is stated to work on PS4 and Xbox One/Series X but I have no access to dev kits so I cannot test this. Theoretically it would just involve linking the appropriate mono library, and including matching core assemblies that you've compiled with mono.
