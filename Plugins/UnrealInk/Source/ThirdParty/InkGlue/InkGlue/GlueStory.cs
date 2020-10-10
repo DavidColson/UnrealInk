@@ -8,15 +8,78 @@ namespace InkGlue
 	public class GlueStory
 	{
 		[DllImport("__Internal")]
-		public static extern void ObserverCallbackInt(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, int newValue);
+		public static extern void ObserverCallback(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, InkVarInterop newValue);
 
-		[DllImport("__Internal")]
-		public static extern void ObserverCallbackFloat(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, float newValue);
+        public enum InkVarType
+        {
+            Float,
+            Int,
+            String,
+            None
+        }
 
-		[DllImport("__Internal")]
-		public static extern void ObserverCallbackString(int instanceId, [MarshalAs(UnmanagedType.LPStr)] string variableName, string newValue);
+        // Don't change structure of this without changing matching C++ interop struct
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+        public struct InkVarInterop
+        {
+            [MarshalAs(UnmanagedType.U1)]
+            public InkVarType Type;
 
-		public GlueStory(string JsonString, int instanceId)
+            [MarshalAs(UnmanagedType.R4)]
+            public float FloatVal;
+
+            [MarshalAs(UnmanagedType.I4)]
+            public int IntVal;
+
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string StringVal;
+
+            public InkVarInterop(object arg)
+            {
+                FloatVal = 0; IntVal = 0; StringVal = null;
+
+                if (arg is float)
+                {
+                    FloatVal = (float)arg;
+                    Type = InkVarType.Float;
+                }
+                else if (arg is int)
+                {
+                    IntVal = (int)arg;
+                    Type = InkVarType.Int;
+                }
+                else if (arg is string)
+                {
+                    StringVal = (string)arg;
+                    Type = InkVarType.String;
+                }
+                else
+                {
+                    throw new Exception("Invalid Ink Variable Type: " + arg.GetType());
+                }
+            }
+
+            public object BoxedValue
+            {
+                get
+                {
+                    switch (Type)
+                    {
+                        case InkVarType.Float:
+                            return FloatVal;
+                        case InkVarType.Int:
+                            return IntVal;
+                        case InkVarType.String:
+                            return StringVal;
+                        default:
+                        case InkVarType.None:
+                            return null;
+                    }
+                }
+            }
+        }
+
+        public GlueStory(string JsonString, int instanceId)
 		{
 			_story = new Story(JsonString);
 			_instanceId = instanceId;
@@ -133,13 +196,7 @@ namespace InkGlue
 
 		void InternalObserve(string variableName, object newValue)
 		{
-			if (newValue is int) {
-				ObserverCallbackInt(_instanceId, variableName, (int)newValue);
-			} else if (newValue is float){
-				ObserverCallbackFloat(_instanceId, variableName, (float)newValue);
-			} else if (newValue is string){
-				ObserverCallbackString(_instanceId, variableName, (string)newValue);
-			}
+			ObserverCallback(_instanceId, variableName, new InkVarInterop(newValue));
 		}
 
 		public void ObserveVariable(string variableName)

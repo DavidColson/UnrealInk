@@ -1,8 +1,8 @@
 Intermediate/
 Plugins/UnrealInk/Source/ThirdParty/InkGlue/InkGlue/bin/
-Plugins/UnrealInk/Source/ThirdParty/InkGlue/InkGlue/obj/InkGlue.csproj.nuget.cache
 Plugins/UnrealInk/Source/ThirdParty/InkGlue/InkGlue/obj/
-Plugins/UnrealInk/Source/ThirdParty/InkGlue/InkGlueTest
+Plugins/UnrealInk/Source/ThirdParty/InkGlue/InkGlueTest/bin/
+Plugins/UnrealInk/Source/ThirdParty/InkGlue/InkGlueTest/obj/
 ExampleProject/Saved/
 ExampleProject/DerivedDataCache/
 *.pdb

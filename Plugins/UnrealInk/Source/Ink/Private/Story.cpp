@@ -21,25 +21,11 @@ UStory::UStory()
 
 }
 
-extern "C" __declspec(dllexport) void ObserverCallbackInt(int instanceId, const char* variableName, int newValue)
+extern "C" __declspec(dllexport) void ObserverCallback(int instanceId, const char* variableName, FInkVarInterop* newValue)
 {
 	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
 	{
-		_delegate.ExecuteIfBound(FString(variableName), FInkVar(newValue));
-	}
-}
-extern "C" __declspec(dllexport) void ObserverCallbackFloat(int instanceId, const char* variableName, float newValue)
-{
-	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
-	{
-		_delegate.ExecuteIfBound(FString(variableName), FInkVar(newValue));
-	}
-}
-extern "C" __declspec(dllexport) void ObserverCallbackString(int instanceId, const char* variableName, const char* newValue)
-{
-	for (auto& _delegate : UStory::delegateMap[UStory::FDelegateMapKey(instanceId, FString(variableName))])
-	{
-		_delegate.ExecuteIfBound(FString(variableName), FInkVar(FString(newValue)));
+		_delegate.ExecuteIfBound(FString(variableName), FInkVar(*newValue));
 	}
 }
 
@@ -354,13 +340,17 @@ void UStory::RemoveVariableObserver(const FVariableObserver& observer, FString s
 		TArray<FVariableObserver>& delegates = delegateMap[key];
 		delegates.Remove(observer);
 
+		// -------HACK----------
+		// Due to a bug in ink runtime, we won't actually call RenoveVariableObserver as it results in a null reference exception.
+		// When ink is updated next we can undo this hack
+		
 		// if there are no more delegates bound to this specific variable you're free to unbind InternalObserve
-		if (delegates.Num() == 0)
+		/*if (delegates.Num() == 0)
 		{
 			void* Params[1];
 			Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*specificVariableName));
 			MonoInvoke<void>("RemoveVariableObserver", Params);
-		}
+		}*/
 	}
 	// Case 2, variable not specified, delegate specified Unbind all variables bound to this delegate
 	else
@@ -370,15 +360,18 @@ void UStory::RemoveVariableObserver(const FVariableObserver& observer, FString s
 			TArray<FVariableObserver>& delegates = element.Value;
 			delegates.Remove(observer);
 
+			// -------HACK----------
+			// Due to a bug in ink runtime, we won't actually call RenoveVariableObserver as it results in a null reference exception.
+
 			// Likewise, if there are 0 delegates left bound to this variable, unbind InternalObserve
-			if (delegates.Num() == 0)
+			/*if (delegates.Num() == 0)
 			{
 				FString varName = element.Key.Value;
 
 				void* Params[1];
 				Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*element.Key.Value));
 				MonoInvoke<void>("RemoveVariableObserver", Params);
-			}
+			}*/
 		}
 	}
 }
