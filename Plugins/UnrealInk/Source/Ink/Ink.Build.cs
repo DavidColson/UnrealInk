@@ -104,7 +104,7 @@ public class Ink : ModuleRules
     void AddMonoRuntime(ReadOnlyTargetRules Target, string MonoUEPluginDirectory)
     {
         string MonoLibPath = MonoUEPluginDirectory + "/ThirdParty/Mono/lib/" + Target.Platform;
-        string LibraryName;
+        string LibraryName = "";
         if(Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Win32)
         {
             LibraryName = "mono-2.0-sgen";
