@@ -67,15 +67,28 @@ public class Ink : ModuleRules
         // Copy dlls and assemblies to output directory
         // --------------------------------------------
 
-        string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "Win64" : "Win32";
-        if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Win32)
+        string PlatformString = "";
+        string SgenAssemblyFileName = "mono-2.0-sgen.dll"; // default
+        if(Target.Platform == UnrealTargetPlatform.Win64)
         {
-            RuntimeDependencies.Add("$(TargetOutputDir)/mono-2.0-sgen.dll", Path.Combine(pluginDirectory, "ThirdParty/Mono/lib", PlatformString, "mono-2.0-sgen.dll"));
+            PlatformString = "Win64";
         }
-        else if (Target.Platform == UnrealTargetPlatform.Mac)
+        else if(Target.Platform == UnrealTargetPlatform.Win32)
         {
-            RuntimeDependencies.Add("$(TargetOutputDir)/libmonosgen-2.0.dylib", Path.Combine(pluginDirectory, "ThirdParty/Mono/lib", PlatformString, "libmonosgen-2.0.dylib"));
+            PlatformString = "Win32";
         }
+        else if(Target.Platform == UnrealTargetPlatform.Mac)
+        {
+            PlatformString = "Mac";
+            SgenAssemblyFileName = "libmonosgen-2.0.dylib";
+        }
+        else if(Target.Platform == UnrealTargetPlatform.Linux)
+        {
+            // todo: 64bit vs 32bit, differences on Linux?
+            PlatformString = "Linux";
+            SgenAssemblyFileName = "libmonosgen-2.0.so";
+        }
+        RuntimeDependencies.Add(("$(TargetOutputDir)/" + SgenAssemblyFileName), Path.Combine(pluginDirectory, "ThirdParty/Mono/lib", PlatformString, SgenAssemblyFileName));
 
         // Mono Assemblies
         RuntimeDependencies.Add("$(TargetOutputDir)/...", Path.Combine(pluginDirectory, "ThirdParty/Mono/Assemblies/..."));
@@ -91,23 +104,28 @@ public class Ink : ModuleRules
     void AddMonoRuntime(ReadOnlyTargetRules Target, string MonoUEPluginDirectory)
     {
         string MonoLibPath = MonoUEPluginDirectory + "/ThirdParty/Mono/lib/" + Target.Platform;
-
-        if (Target.Platform == UnrealTargetPlatform.Win64
-            || Target.Platform == UnrealTargetPlatform.Win32)
+        string LibraryName;
+        if(Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Win32)
         {
-            string LibraryName = "mono-2.0-sgen";
+            LibraryName = "mono-2.0-sgen";
             PublicAdditionalLibraries.Add(Path.Combine(MonoLibPath, LibraryName + ".lib"));
             PublicDelayLoadDLLs.Add(LibraryName + ".dll");
         }
-        else if (Target.Platform == UnrealTargetPlatform.Mac)
+        else if(Target.Platform == UnrealTargetPlatform.Mac)
         {
-            string LibraryName = "libmonosgen-2.0";
+            LibraryName = "libmonosgen-2.0";
             PublicAdditionalLibraries.Add("iconv");
             PublicDelayLoadDLLs.Add(LibraryName + ".dylib");
         }
+        else if(Target.Platform == UnrealTargetPlatform.Linux)
+        {
+            LibraryName = "libmonosgen-2.0";
+            PublicAdditionalLibraries.Add("iconv");
+            PublicDelayLoadDLLs.Add(LibraryName + ".so");
+        }
         else
         {
-            throw new BuildException("Mono not supported on platform '{0}'", Target.Platform);
+            throw new BuildException("Mono not supported on target platform '{0}'", Target.Platform);
         }
 
         PublicDefinitions.Add("MONO_IS_DYNAMIC_LIB=1");
