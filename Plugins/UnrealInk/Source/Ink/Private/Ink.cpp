@@ -59,7 +59,7 @@ static MonoAssembly* assembly_preload_hook(MonoAssemblyName *aname, char **assem
 		// Run mono_assmebly_open
 		// Return success
 		MonoImageOpenStatus status;
-		MonoAssembly *loaded_asm = mono_assembly_open(TCHAR_TO_ANSI(*AbsoluteAssemblyPath), &status);
+		MonoAssembly *loaded_asm = mono_assembly_open(TCHAR_TO_UTF8(*AbsoluteAssemblyPath), &status);
 		if (loaded_asm)
 		{
 			UE_LOG(LogInk, Log, TEXT("Loaded assembly from path '%s'."), *AbsoluteAssemblyPath);
@@ -117,7 +117,7 @@ void FInkModule::StartupModule()
 	mono_install_assembly_preload_hook(assembly_preload_hook, NULL);
 
 	//Init mono into the main domain
-	MainDomain = mono_jit_init(TCHAR_TO_ANSI(FApp::GetProjectName()));
+	MainDomain = mono_jit_init(TCHAR_TO_UTF8(FApp::GetProjectName()));
 	if (!MainDomain)
 	{
 		UE_LOG(LogInk, Fatal, TEXT("Initializing Mono for Ink plugin failed"));
@@ -125,13 +125,13 @@ void FInkModule::StartupModule()
 
 	// Load Ink Runtime assembly
 	MonoAssembly *assembly;
-	const char* assemblyPath = TCHAR_TO_ANSI(*FString(BaseDir + "/ThirdParty/Ink/InkGlue.dll"));
+	const char* assemblyPath = TCHAR_TO_UTF8(*FString(BaseDir + "/ThirdParty/Ink/InkGlue.dll"));
 
 	if(!FPaths::FileExists(FString(assemblyPath))) 
-		assemblyPath = TCHAR_TO_ANSI(*FString(FString(FPlatformProcess::BaseDir()) + "/Ink/InkGlue.dll"));
+		assemblyPath = TCHAR_TO_UTF8(*FString(FString(FPlatformProcess::BaseDir()) + "/Ink/InkGlue.dll"));
 
 	if (!FPaths::FileExists(FString(assemblyPath)))
-		assemblyPath = TCHAR_TO_ANSI(*FString(FString(FPlatformProcess::BaseDir()) + "/InkGlue.dll"));
+		assemblyPath = TCHAR_TO_UTF8(*FString(FString(FPlatformProcess::BaseDir()) + "/InkGlue.dll"));
 
 	assembly = mono_domain_assembly_open(MainDomain, assemblyPath);
 	if (!assembly)
