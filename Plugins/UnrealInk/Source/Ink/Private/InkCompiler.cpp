@@ -18,8 +18,8 @@ UInkCompiler* UInkCompiler::NewInkCompiler(FString inkFileContents, FString inkF
 {
 	UInkCompiler* NewCompiler = NewObject<UInkCompiler>();
 
-	MonoString* monoInkFileContents = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*(inkFileContents)));
-	MonoString* monoInkFileName = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*(inkFileName)));
+	MonoString* monoInkFileContents = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*(inkFileContents)));
+	MonoString* monoInkFileName = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*(inkFileName)));
 	void* args[2];
 	args[0] = monoInkFileContents;
 	args[1] = monoInkFileName;

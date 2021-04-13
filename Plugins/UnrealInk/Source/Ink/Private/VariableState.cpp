@@ -31,7 +31,7 @@ FInkVar UVariablesState::GetVariable(const FString& variableName)
 {
 	// Single parameter: variable name
 	void* params[1];
-	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
+	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*variableName));
 
 	// Get result as a mono object
 	MonoObject* result = MonoInvoke<MonoObject*>("GetVariable", params);
@@ -51,7 +51,7 @@ FInkVar UVariablesState::GetVariable(const FString& variableName)
 void UVariablesState::SetVariableFloat(const FString& variableName, float value)
 {
 	void* params[2];
-	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
+	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*variableName));
 	params[1] = mono_value_box(mono_domain_get(), mono_get_single_class(), &value);
 
 	MonoInvoke<void>("SetVariable", params);
@@ -60,7 +60,7 @@ void UVariablesState::SetVariableFloat(const FString& variableName, float value)
 void UVariablesState::SetVariableInt(const FString& variableName, int value)
 {
 	void* params[2];
-	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
+	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*variableName));
 	params[1] = mono_value_box(mono_domain_get(), mono_get_int32_class(), &value);
 
 	MonoInvoke<void>("SetVariable", params);
@@ -69,8 +69,8 @@ void UVariablesState::SetVariableInt(const FString& variableName, int value)
 void UVariablesState::SetVariableString(const FString& variableName, const FString& value)
 {
 	void* params[2];
-	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*variableName));
-	params[1] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*value));
+	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*variableName));
+	params[1] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*value));
 
 	MonoInvoke<void>("SetVariable", params);
 }

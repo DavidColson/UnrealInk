@@ -88,7 +88,7 @@ protected:
 		MonoString* ret = (MonoString*)mono_runtime_invoke(Methods[MethodName], Instance, params, &Exception);
 		Ink.MaybeThrowMonoException(Exception);
 
-		return FString(mono_string_to_utf8(ret));
+		return FString(mono_string_to_utf16(ret));
 	}
 
 
