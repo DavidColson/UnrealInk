@@ -14,7 +14,7 @@ namespace InkGlue
     }
 
     // Don't change structure of this without changing matching C++ interop struct
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct InkVarInterop
     {
         [MarshalAs(UnmanagedType.U1)]

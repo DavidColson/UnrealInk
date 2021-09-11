@@ -36,7 +36,7 @@ FString UStoryState::ToJson()
 ////////////////////////////////////////////////////////
 void UStoryState::LoadJson(FString Json)
 {
-	MonoString* MonoJson = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Json));
+	MonoString* MonoJson = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*Json));
 	void* args[1];
 	args[0] = MonoJson;
 
@@ -46,7 +46,7 @@ void UStoryState::LoadJson(FString Json)
 ////////////////////////////////////////////////////////
 int UStoryState::VisitCountAtPathString(FString PathString)
 {
-	MonoString* MonoPath = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*PathString));
+	MonoString* MonoPath = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*PathString));
 	void* args[1];
 	args[0] = MonoPath;
 

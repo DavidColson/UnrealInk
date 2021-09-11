@@ -92,7 +92,7 @@ UStory* UStory::NewStory(UStoryAsset* StoryAsset)
 
 	NewStory->InstanceId = InstanceCounter++;
 
-	MonoString* JsonString = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*(StoryAsset->CompiledStory)));
+	MonoString* JsonString = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*(StoryAsset->CompiledStory)));
 	void* Args[2];
 	Args[0] = JsonString;
 	Args[1] = &(NewStory->InstanceId);
@@ -264,7 +264,7 @@ TArray<FString> UStory::TagsForContentAtPath(FString Path)
 {
 	TArray<FString>  ReturnTags;
 
-	MonoString* MonoPath = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Path));
+	MonoString* MonoPath = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*Path));
 	void* Args[1];
 	Args[0] = MonoPath;
 	MonoArray* MonoTags = MonoInvoke<MonoArray*>("TagsForContentAtPath", Args);
@@ -313,7 +313,7 @@ void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar>
 			BoxedParam = mono_value_box(mono_domain_get(), mono_get_int32_class(), &Var.intVar);
 			break;
 		case EInkVarType::String:
-			BoxedParam = (MonoObject*)mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Var.stringVar));
+			BoxedParam = (MonoObject*)mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*Var.stringVar));
 			//BoxedParam = mono_value_box(mono_domain_get(), mono_get_string_class(), monoString);
 			break;
 		}
@@ -322,7 +322,7 @@ void UStory::ChoosePathString(FString Path, bool ResetCallstack, TArray<FInkVar>
 	}
 
 	void* Params[3];
-	Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Path));
+	Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*Path));
 	Params[1] = ArgsArray;
 	Params[2] = &ResetCallstack;
 
@@ -353,7 +353,7 @@ void UStory::ObserveVariable(FString VariableName, const FVariableObserver & Obs
 		VarObserverMap.Add(Key, Observers);
 
 		void* Params[1];
-		Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*VariableName));
+		Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*VariableName));
 		MonoInvoke<void>("ObserveVariable", Params);
 	}
 }
@@ -417,7 +417,7 @@ void UStory::RemoveVariableObserver(const FVariableObserver& Observer, FString S
 bool UStory::HasFunction(FString FunctionName)
 {
 	void* Args[1];
-	Args[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*FunctionName));;
+	Args[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*FunctionName));;
 	return MonoInvoke<bool>("HasFunction", Args);
 }
 
@@ -447,7 +447,7 @@ FInkVar UStory::EvaluateFunctionOutString(FString FunctionName, FString& OutStri
 			BoxedParam = mono_value_box(mono_domain_get(), mono_get_int32_class(), &Argument.intVar);
 			break;
 		case EInkVarType::String:
-			BoxedParam = (MonoObject*)mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*Argument.stringVar));
+			BoxedParam = (MonoObject*)mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*Argument.stringVar));
 			break;
 		}
 		mono_array_set(ArgsArray, MonoObject*, i, BoxedParam);
@@ -456,7 +456,7 @@ FInkVar UStory::EvaluateFunctionOutString(FString FunctionName, FString& OutStri
 	MonoString* OutTextString = mono_string_new(mono_domain_get(), "");
 
 	void* Params[3];
-	Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*FunctionName));
+	Params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*FunctionName));
 	Params[1] = &OutTextString;
 	Params[2] = ArgsArray;
 
@@ -479,7 +479,7 @@ FInkVar UStory::EvaluateFunctionOutString(FString FunctionName, FString& OutStri
 void UStory::RegisterExternalFunction(FString FunctionName, const FExternalFunctionHandler& function)
 {
 	// Create Mono string
-	MonoString* MonoName = mono_string_new(mono_domain_get(), TCHAR_TO_ANSI(*FunctionName));
+	MonoString* MonoName = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*FunctionName));
 	void* Args[1];
 	Args[0] = MonoName;
 
